@@ -68,14 +68,23 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
 
       <div className="flex justify-center">
         <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)} className="w-full max-w-md">
-          <TabsList className="glass w-full grid grid-cols-3 p-1.5">
-            <TabsTrigger value="smart" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsList className="glass w-full grid grid-cols-3 p-1.5 h-auto">
+            <TabsTrigger 
+              value="smart" 
+              className="py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+            >
               Smart Mode
             </TabsTrigger>
-            <TabsTrigger value="exact" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger 
+              value="exact" 
+              className="py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+            >
               Exact Match
             </TabsTrigger>
-            <TabsTrigger value="batch" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger 
+              value="batch" 
+              className="py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+            >
               Batch Mode
             </TabsTrigger>
           </TabsList>

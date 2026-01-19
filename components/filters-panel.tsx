@@ -58,15 +58,40 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="format" className="w-full">
-          <TabsList className="glass grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="format" className="text-xs">Format</TabsTrigger>
-            <TabsTrigger value="tlds" className="text-xs">Extensions</TabsTrigger>
-            <TabsTrigger value="branding" className="text-xs">Branding</TabsTrigger>
-            <TabsTrigger value="seo" className="text-xs">SEO</TabsTrigger>
-            <TabsTrigger value="business" className="text-xs">Business</TabsTrigger>
+          <TabsList className="glass grid w-full grid-cols-5 mb-6 h-auto p-1">
+            <TabsTrigger 
+              value="format" 
+              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Format
+            </TabsTrigger>
+            <TabsTrigger 
+              value="tlds" 
+              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Extensions
+            </TabsTrigger>
+            <TabsTrigger 
+              value="branding" 
+              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Branding
+            </TabsTrigger>
+            <TabsTrigger 
+              value="seo" 
+              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              SEO
+            </TabsTrigger>
+            <TabsTrigger 
+              value="business" 
+              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Business
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="format" className="space-y-6">
+          <TabsContent value="format" className="space-y-6 mt-6">
             <div>
               <Label className="text-sm font-semibold mb-3 block">
                 Longueur: {filters.minLength} - {filters.maxLength} caractères
@@ -112,7 +137,7 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="tlds" className="space-y-4">
+          <TabsContent value="tlds" className="space-y-4 mt-6">
             <div>
               <Label className="text-sm font-semibold mb-3 block">Catégories rapides</Label>
               <div className="flex flex-wrap gap-2">
@@ -140,12 +165,15 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
                   <Badge
                     key={tld}
                     variant="secondary"
-                    className="glass cursor-pointer hover:bg-primary/20 transition-colors group"
+                    className="glass cursor-pointer hover:bg-primary/20 transition-colors group flex items-center gap-1"
                   >
                     {tld}
                     <X
-                      className="ml-1.5 h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => toggleTld(tld)}
+                      className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTld(tld);
+                      }}
                     />
                   </Badge>
                 ))}
@@ -170,7 +198,7 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="branding" className="space-y-6">
+          <TabsContent value="branding" className="space-y-6 mt-6">
             <div>
               <Label className="text-sm font-semibold mb-3 block">
                 Score de brandabilité minimum: {filters.minBrandScore}/30
@@ -187,7 +215,7 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             <div>
               <Label className="text-sm font-semibold mb-2 block">Style</Label>
               <Select value={filters.style} onValueChange={(v) => updateFilter("style", v)}>
-                <SelectTrigger className="glass">
+                <SelectTrigger className="glass w-full">
                   <SelectValue placeholder="Tous les styles" />
                 </SelectTrigger>
                 <SelectContent>
@@ -202,7 +230,7 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="seo" className="space-y-4">
+          <TabsContent value="seo" className="space-y-4 mt-6">
             <div className="p-4 glass rounded-lg">
               <p className="text-sm text-muted-foreground">
                 Les filtres SEO seront appliqués automatiquement selon les mots-clés de recherche.
@@ -210,11 +238,11 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="business" className="space-y-4">
+          <TabsContent value="business" className="space-y-4 mt-6">
             <div>
               <Label className="text-sm font-semibold mb-2 block">Catégorie</Label>
               <Select value={filters.category} onValueChange={(v) => updateFilter("category", v)}>
-                <SelectTrigger className="glass">
+                <SelectTrigger className="glass w-full">
                   <SelectValue placeholder="Toutes les catégories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -231,7 +259,7 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             <div>
               <Label className="text-sm font-semibold mb-2 block">Ton</Label>
               <Select value={filters.tone} onValueChange={(v) => updateFilter("tone", v)}>
-                <SelectTrigger className="glass">
+                <SelectTrigger className="glass w-full">
                   <SelectValue placeholder="Tous les tons" />
                 </SelectTrigger>
                 <SelectContent>
