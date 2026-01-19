@@ -1,0 +1,14 @@
+{
+  "name": "adneo",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "concurrently -n web,api -c cyan,magenta \"npm --prefix apps/web run dev\" \"npm --prefix apps/api run dev\"",
+    "build": "npm --prefix apps/api run build && npm --prefix apps/web run build",
+    "lint": "npm --prefix apps/web run lint",
+    "start": "concurrently -n web,api -c cyan,magenta \"npm --prefix apps/web run start\" \"npm --prefix apps/api run start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
