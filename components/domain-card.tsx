@@ -6,13 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { FinalDomainResult } from "@/lib/types";
 import { ExternalLink, Copy, Star, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
+import { Language, t } from "@/lib/i18n";
 
 interface DomainCardProps {
   domain: FinalDomainResult;
   onCopy?: (domain: string) => void;
+  lang: Language;
 }
 
-export function DomainCard({ domain, onCopy }: DomainCardProps) {
+export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
   const [copied, setCopied] = useState(false);
   const [favorited, setFavorited] = useState(false);
 
@@ -40,7 +42,7 @@ export function DomainCard({ domain, onCopy }: DomainCardProps) {
         <div className={`text-3xl font-bold ${getScoreColor(domain.score.total)}`}>
           {domain.score.total}
         </div>
-        <div className="text-xs text-muted-foreground text-center">score</div>
+        <div className="text-xs text-muted-foreground text-center">{t("results.score", lang)}</div>
       </div>
 
       {/* Gradient overlay on hover */}
@@ -66,7 +68,7 @@ export function DomainCard({ domain, onCopy }: DomainCardProps) {
         {/* Score breakdown */}
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Brandability</span>
+            <span className="text-muted-foreground">{t("results.brandability", lang)}</span>
             <div className="flex items-center gap-2">
               <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div
@@ -80,7 +82,7 @@ export function DomainCard({ domain, onCopy }: DomainCardProps) {
             </div>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Pronounceability</span>
+            <span className="text-muted-foreground">{t("results.pronounceability", lang)}</span>
             <div className="flex items-center gap-2">
               <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div
@@ -94,7 +96,7 @@ export function DomainCard({ domain, onCopy }: DomainCardProps) {
             </div>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">SEO Fit</span>
+            <span className="text-muted-foreground">{t("results.seoFit", lang)}</span>
             <div className="flex items-center gap-2">
               <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div
@@ -117,14 +119,14 @@ export function DomainCard({ domain, onCopy }: DomainCardProps) {
           size="sm"
         >
           <ExternalLink className="mr-2 h-4 w-4" />
-          Acheter sur GoDaddy
+          {t("results.buy", lang)}
         </Button>
         <Button
           onClick={handleCopy}
           variant="outline"
           size="sm"
           className="glass"
-          title={copied ? "Copié !" : "Copier"}
+          title={copied ? t("results.copied", lang) : t("results.copy", lang)}
         >
           {copied ? (
             <CheckCircle2 className="h-4 w-4 text-green-400" />
@@ -137,7 +139,7 @@ export function DomainCard({ domain, onCopy }: DomainCardProps) {
           size="sm"
           className="glass"
           onClick={() => setFavorited(!favorited)}
-          title="Ajouter aux favoris"
+          title={t("results.favorite", lang)}
         >
           <Star className={`h-4 w-4 ${favorited ? "fill-yellow-400 text-yellow-400" : ""}`} />
         </Button>

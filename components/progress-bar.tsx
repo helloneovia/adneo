@@ -4,30 +4,32 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { SearchProgress } from "@/lib/types";
 import { Loader2, CheckCircle2, Sparkles } from "lucide-react";
+import { Language, t } from "@/lib/i18n";
 
 interface ProgressBarProps {
   progress: SearchProgress | null;
+  lang: Language;
 }
 
-export function ProgressBar({ progress }: ProgressBarProps) {
+export function ProgressBar({ progress, lang }: ProgressBarProps) {
   if (!progress) return null;
 
   const getStageLabel = (stage: string) => {
     switch (stage) {
       case "generating":
-        return "Génération des idées...";
+        return t("progress.generating", lang);
       case "normalizing":
-        return "Normalisation...";
+        return t("progress.normalizing", lang);
       case "checking":
-        return "Vérification de disponibilité...";
+        return t("progress.checking", lang);
       case "scoring":
-        return "Calcul des scores...";
+        return t("progress.scoring", lang);
       case "filtering":
-        return "Filtrage...";
+        return t("progress.filtering", lang);
       case "done":
-        return "Terminé";
+        return t("progress.done", lang);
       default:
-        return "En cours...";
+        return t("progress.inProgress", lang);
     }
   };
 
@@ -71,13 +73,13 @@ export function ProgressBar({ progress }: ProgressBarProps) {
               {progress.details.generated !== undefined && (
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">{progress.details.generated}</div>
-                  <div className="text-xs text-muted-foreground">Idées générées</div>
+                  <div className="text-xs text-muted-foreground">{t("progress.generated", lang)}</div>
                 </div>
               )}
               {progress.details.unique !== undefined && (
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-400">{progress.details.unique}</div>
-                  <div className="text-xs text-muted-foreground">Uniques</div>
+                  <div className="text-xs text-muted-foreground">{t("progress.unique", lang)}</div>
                 </div>
               )}
               {progress.details.checking && (
@@ -86,13 +88,13 @@ export function ProgressBar({ progress }: ProgressBarProps) {
                     <div className="text-2xl font-bold text-purple-400">
                       {progress.details.checking.current}
                     </div>
-                    <div className="text-xs text-muted-foreground">Vérifiés</div>
+                    <div className="text-xs text-muted-foreground">{t("progress.checked", lang)}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-400">
                       {progress.details.checking.tlds}
                     </div>
-                    <div className="text-xs text-muted-foreground">Extensions</div>
+                    <div className="text-xs text-muted-foreground">{t("progress.extensions", lang)}</div>
                   </div>
                 </>
               )}
@@ -101,7 +103,7 @@ export function ProgressBar({ progress }: ProgressBarProps) {
                   <div className="text-2xl font-bold text-green-400">
                     {progress.details.available}
                   </div>
-                  <div className="text-xs text-muted-foreground">Disponibles</div>
+                  <div className="text-xs text-muted-foreground">{t("progress.available", lang)}</div>
                 </div>
               )}
             </div>

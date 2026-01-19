@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Sparkles } from "lucide-react";
+import { Language, t } from "@/lib/i18n";
 
 interface SearchFormProps {
   onSearch: (keywords: string[], mode: "smart" | "exact" | "batch") => void;
   isLoading?: boolean;
+  lang: Language;
 }
 
-export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
+export function SearchForm({ onSearch, isLoading, lang }: SearchFormProps) {
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<"smart" | "exact" | "batch">("smart");
 
@@ -38,7 +40,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Entrez un mot par ligne&#10;ex: vault&#10;neo&#10;finance"
+                placeholder={t("search.placeholderBatch", lang)}
                 className="w-full min-h-[140px] rounded-xl border-0 bg-background/50 px-6 py-4 text-base ring-0 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-muted-foreground/60 resize-none"
               />
             ) : (
@@ -47,7 +49,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="ex: neo finance, ai fitness, secure vault..."
+                  placeholder={t("search.placeholder", lang)}
                   className="h-16 text-lg bg-background/50 border-0 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-muted-foreground/60 pl-6 pr-14"
                 />
                 <Sparkles className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/50" />
@@ -61,7 +63,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             className="h-16 px-8 text-base font-semibold glow-primary hover:glow-primary transition-all duration-300"
           >
             <Search className="mr-2 h-5 w-5" />
-            {isLoading ? "Recherche..." : "Rechercher"}
+            {isLoading ? t("search.buttonLoading", lang) : t("search.button", lang)}
           </Button>
         </div>
       </div>
@@ -73,19 +75,19 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               value="smart" 
               className="py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
             >
-              Smart Mode
+              {t("search.modes.smart", lang)}
             </TabsTrigger>
             <TabsTrigger 
               value="exact" 
               className="py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
             >
-              Exact Match
+              {t("search.modes.exact", lang)}
             </TabsTrigger>
             <TabsTrigger 
               value="batch" 
               className="py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
             >
-              Batch Mode
+              {t("search.modes.batch", lang)}
             </TabsTrigger>
           </TabsList>
         </Tabs>

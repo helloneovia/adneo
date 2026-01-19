@@ -5,12 +5,15 @@ import { SearchForm } from "@/components/search-form";
 import { ProgressBar } from "@/components/progress-bar";
 import { DomainCard } from "@/components/domain-card";
 import { FiltersPanel } from "@/components/filters-panel";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchRequest, SearchProgress, SearchResult, FinalDomainResult, SortOption } from "@/lib/types";
-import { Download, Sparkles, Zap, Shield, TrendingUp } from "lucide-react";
+import { Download, Sparkles, Zap, Shield } from "lucide-react";
+import { Language, getLanguage, t } from "@/lib/i18n";
 
 export default function Home() {
+  const [lang, setLang] = useState<Language>("en");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [mode, setMode] = useState<"smart" | "exact" | "batch">("smart");
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +31,27 @@ export default function Home() {
     style: "",
     tone: "",
   });
+
+  // Détection automatique de la langue au chargement
+  useEffect(() => {
+    const detectedLang = getLanguage();
+    setLang(detectedLang);
+    // Sauvegarder dans localStorage
+    localStorage.setItem("adneo-lang", detectedLang);
+  }, []);
+
+  // Charger la langue depuis localStorage si disponible
+  useEffect(() => {
+    const savedLang = localStorage.getItem("adneo-lang") as Language;
+    if (savedLang && ["fr", "en", "es", "zh"].includes(savedLang)) {
+      setLang(savedLang);
+    }
+  }, []);
+
+  const handleLanguageChange = (newLang: Language) => {
+    setLang(newLang);
+    localStorage.setItem("adneo-lang", newLang);
+  };
 
   const handleSearch = async (searchKeywords: string[], searchMode: typeof mode) => {
     setKeywords(searchKeywords);
@@ -56,7 +80,7 @@ export default function Home() {
       setProgress({
         stage: "generating",
         progress: 10,
-        message: "Génération des idées de noms...",
+        message: t("progress.generating", lang),
         details: { generated: 0 },
       });
 
@@ -65,7 +89,7 @@ export default function Home() {
       setProgress({
         stage: "normalizing",
         progress: 30,
-        message: "Normalisation et déduplication...",
+        message: t("progress.normalizing", lang),
         details: { unique: 0 },
       });
 
@@ -74,7 +98,7 @@ export default function Home() {
       setProgress({
         stage: "checking",
         progress: 50,
-        message: "Vérification de disponibilité...",
+        message: t("progress.checking", lang),
         details: { checking: { current: 0, total: 100, tlds: filters.tlds.length } },
       });
 
@@ -93,7 +117,7 @@ export default function Home() {
       setProgress({
         stage: "done",
         progress: 100,
-        message: `Recherche terminée - ${data.finalResults.length} domaines disponibles trouvés`,
+        message: t("progress.done", lang),
         details: { available: data.finalResults.length },
       });
 
@@ -156,6 +180,8 @@ export default function Home() {
     URL.revokeObjectURL(url);
   };
 
+  const plural = results.length > 1 ? "s" : "";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-[#0a0f1a]">
       {/* Animated background gradient */}
@@ -174,19 +200,22 @@ export default function Home() {
                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold gradient-text">ADNEO</h1>
-                <p className="text-xs text-muted-foreground -mt-1">Premium Domain Finder</p>
+                <h1 className="text-3xl font-bold gradient-text">{t("header.title", lang)}</h1>
+                <p className="text-xs text-muted-foreground -mt-1">{t("header.subtitle", lang)}</p>
               </div>
             </div>
-            <div className="hidden md:flex items-center gap-6 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Zap className="h-4 w-4 text-primary" />
-                <span>Ultra rapide</span>
+            <div className="flex items-center gap-4">
+              <div className="hidden md:flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Zap className="h-4 w-4 text-primary" />
+                  <span>{t("header.features.fast", lang)}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <span>{t("header.features.verified", lang)}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Shield className="h-4 w-4 text-primary" />
-                <span>Résultats vérifiés</span>
-              </div>
+              <LanguageSwitcher currentLang={lang} onLanguageChange={handleLanguageChange} />
             </div>
           </div>
         </div>
@@ -197,103 +226,101 @@ export default function Home() {
         <section className="mb-16">
           <div className="text-center mb-12 space-y-4">
             <h2 className="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-              Trouvez des domaines{" "}
-              <span className="gradient-text">premium</span> disponibles
+              {t("hero.title", lang)}{" "}
+              <span className="gradient-text">{t("hero.titleHighlight", lang)}</span>{" "}
+              {t("hero.titleEnd", lang)}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Génération intelligente • Vérification multi-extensions • Résultats disponibles uniquement
+              {t("hero.subtitle", lang)}
             </p>
             
             {/* Features badges */}
             <div className="flex flex-wrap justify-center gap-4 mt-8">
               <div className="glass px-4 py-2 rounded-full text-sm flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                <span>50+ extensions</span>
+                <span>{t("hero.badges.extensions", lang)}</span>
               </div>
               <div className="glass px-4 py-2 rounded-full text-sm flex items-center gap-2">
                 <Zap className="h-4 w-4 text-primary" />
-                <span>&lt; 60 secondes</span>
+                <span>{t("hero.badges.speed", lang)}</span>
               </div>
               <div className="glass px-4 py-2 rounded-full text-sm flex items-center gap-2">
                 <Shield className="h-4 w-4 text-primary" />
-                <span>100% disponibles</span>
+                <span>{t("hero.badges.available", lang)}</span>
               </div>
             </div>
           </div>
 
-          <SearchForm onSearch={handleSearch} isLoading={isLoading} />
+          <SearchForm onSearch={handleSearch} isLoading={isLoading} lang={lang} />
 
           {progress && (
             <div className="mt-8 animate-fade-in">
-              <ProgressBar progress={progress} />
+              <ProgressBar progress={progress} lang={lang} />
             </div>
           )}
         </section>
 
-        {/* Filters & Results */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Filters */}
-          <aside className="lg:col-span-1">
-            <FiltersPanel onFiltersChange={handleFiltersChange} />
-          </aside>
+        {/* Filters Panel - Horizontal */}
+        <section className="mb-8">
+          <FiltersPanel onFiltersChange={handleFiltersChange} lang={lang} />
+        </section>
 
-          {/* Results */}
-          <div className="lg:col-span-3">
-            {results.length > 0 && (
-              <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-3xl font-bold mb-1">
-                    {results.length} domaine{results.length > 1 ? "s" : ""} disponible{results.length > 1 ? "s" : ""}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">Tous vérifiés et prêts à l'achat</p>
-                </div>
-                <div className="flex gap-3">
-                  <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-                    <SelectTrigger className="w-[180px] glass">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="best-match">Meilleur match</SelectItem>
-                      <SelectItem value="shortest">Plus court</SelectItem>
-                      <SelectItem value="highest-score">Score le plus élevé</SelectItem>
-                      <SelectItem value="most-premium">Plus premium</SelectItem>
-                      <SelectItem value="keyword-strongest">Meilleur SEO</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button onClick={handleExportCSV} variant="outline" className="glass">
-                    <Download className="mr-2 h-4 w-4" />
-                    Export CSV
-                  </Button>
-                </div>
+        {/* Results */}
+        <section>
+          {results.length > 0 && (
+            <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-3xl font-bold mb-1">
+                  {t("results.title", lang, { count: results.length, plural })}
+                </h3>
+                <p className="text-sm text-muted-foreground">{t("results.subtitle", lang)}</p>
               </div>
-            )}
-
-            {results.length === 0 && !isLoading && (
-              <div className="text-center py-20">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6">
-                  <Sparkles className="h-10 w-10 text-primary" />
-                </div>
-                <p className="text-lg text-muted-foreground max-w-md mx-auto">
-                  {keywords.length > 0
-                    ? "Aucun domaine disponible trouvé. Essayez d'autres mots-clés ou ajustez les filtres."
-                    : "Commencez une recherche pour trouver des domaines premium disponibles"}
-                </p>
+              <div className="flex gap-3">
+                <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+                  <SelectTrigger className="w-[180px] glass">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="best-match">{t("results.sort.bestMatch", lang)}</SelectItem>
+                    <SelectItem value="shortest">{t("results.sort.shortest", lang)}</SelectItem>
+                    <SelectItem value="highest-score">{t("results.sort.highestScore", lang)}</SelectItem>
+                    <SelectItem value="most-premium">{t("results.sort.mostPremium", lang)}</SelectItem>
+                    <SelectItem value="keyword-strongest">{t("results.sort.keywordStrongest", lang)}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleExportCSV} variant="outline" className="glass">
+                  <Download className="mr-2 h-4 w-4" />
+                  {t("results.export", lang)}
+                </Button>
               </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {sortedResults.map((domain, index) => (
-                <div
-                  key={domain.fullDomain}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <DomainCard domain={domain} />
-                </div>
-              ))}
             </div>
+          )}
+
+          {results.length === 0 && !isLoading && (
+            <div className="text-center py-20">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6">
+                <Sparkles className="h-10 w-10 text-primary" />
+              </div>
+              <p className="text-lg text-muted-foreground max-w-md mx-auto">
+                {keywords.length > 0
+                  ? t("results.emptyFiltered", lang)
+                  : t("results.empty", lang)}
+              </p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {sortedResults.map((domain, index) => (
+              <div
+                key={domain.fullDomain}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <DomainCard domain={domain} lang={lang} />
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
       </main>
     </div>
   );
