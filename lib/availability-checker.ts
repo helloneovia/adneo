@@ -1,5 +1,7 @@
 import { DomainCandidate } from "./domain-generator";
+import { ScoredDomain } from "./domain-scorer";
 import { promises as dns } from "dns";
+import { estimateGoDaddyPrice } from "./price-estimator";
 
 export type AvailabilityStatus = "available" | "taken" | "unknown" | "checking";
 
@@ -9,6 +11,7 @@ export interface AvailabilityResult {
   status: AvailabilityStatus;
   checkedAt: Date;
   buyUrl: string;
+  price?: number | null; // Prix estimé GoDaddy (null = premium)
 }
 
 /**
@@ -18,9 +21,12 @@ export class AvailabilityChecker {
   /**
    * Vérifie la disponibilité d'un domaine via DNS
    */
-  async checkAvailability(candidate: DomainCandidate): Promise<AvailabilityResult> {
+  async checkAvailability(candidate: DomainCandidate, scoredDomain?: ScoredDomain): Promise<AvailabilityResult> {
     try {
       const status = await this.checkDomainDNS(candidate.fullDomain);
+      
+      // Estimer le prix si on a un scoredDomain
+      const price = scoredDomain ? estimateGoDaddyPrice(scoredDomain) : null;
       
       return {
         domain: candidate.name,
@@ -28,6 +34,7 @@ export class AvailabilityChecker {
         status,
         checkedAt: new Date(),
         buyUrl: this.generateGoDaddyUrl(candidate.fullDomain),
+        price,
       };
     } catch (error) {
       console.error(`Error checking ${candidate.fullDomain}:`, error);
@@ -38,6 +45,7 @@ export class AvailabilityChecker {
         status: "unknown",
         checkedAt: new Date(),
         buyUrl: this.generateGoDaddyUrl(candidate.fullDomain),
+        price: null,
       };
     }
   }
@@ -47,6 +55,7 @@ export class AvailabilityChecker {
    */
   async checkBatch(
     candidates: DomainCandidate[],
+    scoredDomains?: ScoredDomain[],
     onProgress?: (checked: number, total: number) => void
   ): Promise<AvailabilityResult[]> {
     const results: AvailabilityResult[] = [];
@@ -54,35 +63,38 @@ export class AvailabilityChecker {
 
     for (let i = 0; i < candidates.length; i += batchSize) {
       const batch = candidates.slice(i, i + batchSize);
+      const scoredBatch = scoredDomains?.slice(i, i + batchSize);
       
       // Vérifier en parallèle avec timeout
       const batchResults = await Promise.allSettled(
-        batch.map((candidate) => 
-          Promise.race([
-            this.checkAvailability(candidate),
+        batch.map((candidate, idx) => {
+          const scored = scoredBatch?.[idx];
+          return Promise.race([
+            this.checkAvailability(candidate, scored),
             new Promise<AvailabilityResult>((_, reject) => 
               setTimeout(() => reject(new Error("Timeout")), 3000)
             )
-          ])
-        )
+          ]);
+        })
       );
 
       // Traiter les résultats
-      for (const result of batchResults) {
+      for (let idx = 0; idx < batchResults.length; idx++) {
+        const result = batchResults[idx];
         if (result.status === "fulfilled") {
           results.push(result.value);
         } else {
           // En cas d'erreur, marquer comme unknown
-          const index = batchResults.indexOf(result);
-          if (index >= 0 && index < batch.length) {
-            results.push({
-              domain: batch[index].name,
-              tld: batch[index].tld,
-              status: "unknown",
-              checkedAt: new Date(),
-              buyUrl: this.generateGoDaddyUrl(batch[index].fullDomain),
-            });
-          }
+          const candidate = batch[idx];
+          const scored = scoredBatch?.[idx];
+          results.push({
+            domain: candidate.name,
+            tld: candidate.tld,
+            status: "unknown",
+            checkedAt: new Date(),
+            buyUrl: this.generateGoDaddyUrl(candidate.fullDomain),
+            price: scored ? estimateGoDaddyPrice(scored) : null,
+          });
         }
       }
 

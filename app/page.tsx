@@ -26,10 +26,6 @@ export default function Home() {
     maxLength: 20,
     allowHyphens: false,
     allowDigits: false,
-    minBrandScore: 0,
-    category: "",
-    style: "",
-    tone: "",
   });
 
   // Détection automatique de la langue au chargement
@@ -70,10 +66,6 @@ export default function Home() {
           allowDigits: filters.allowDigits,
           maxLength: filters.maxLength,
           minLength: filters.minLength,
-          minBrandScore: filters.minBrandScore,
-          category: filters.category,
-          style: filters.style,
-          tone: filters.tone,
         },
       };
 

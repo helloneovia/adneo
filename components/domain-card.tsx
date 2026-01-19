@@ -4,9 +4,10 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FinalDomainResult } from "@/lib/types";
-import { ExternalLink, Copy, Star, CheckCircle2 } from "lucide-react";
+import { ExternalLink, Copy, Star, CheckCircle2, DollarSign, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Language, t } from "@/lib/i18n";
+import { formatPrice } from "@/lib/price-estimator";
 
 interface DomainCardProps {
   domain: FinalDomainResult;
@@ -35,6 +36,9 @@ export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
     return "text-yellow-400";
   };
 
+  const price = domain.availability.price;
+  const isPremium = price === null;
+
   return (
     <Card className="group relative glass hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 overflow-hidden">
       {/* Score badge */}
@@ -45,6 +49,16 @@ export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
         <div className="text-xs text-muted-foreground text-center">{t("results.score", lang)}</div>
       </div>
 
+      {/* Premium badge */}
+      {isPremium && (
+        <div className="absolute top-4 left-4 z-10">
+          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg">
+            <Sparkles className="h-3 w-3 mr-1" />
+            Premium
+          </Badge>
+        </div>
+      )}
+
       {/* Gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-primary/5 group-hover:to-primary/10 transition-all duration-500 pointer-events-none" />
 
@@ -53,7 +67,7 @@ export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
           <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
             {domain.fullDomain}
           </h3>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
             <Badge variant="outline" className="glass border-primary/30 text-primary">
               {domain.tld}
             </Badge>
@@ -62,6 +76,17 @@ export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
                 {tag}
               </Badge>
             ))}
+            {price !== null && (
+              <Badge variant="outline" className="glass border-green-500/30 text-green-400 flex items-center gap-1">
+                <DollarSign className="h-3 w-3" />
+                {formatPrice(price)}
+              </Badge>
+            )}
+            {isPremium && (
+              <Badge variant="outline" className="glass border-yellow-500/30 text-yellow-400">
+                {formatPrice(null)}
+              </Badge>
+            )}
           </div>
         </div>
 

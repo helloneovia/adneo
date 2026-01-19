@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     // Vérification disponibilité
     const checker = new AvailabilityChecker();
-    const availabilityResults = await checker.checkBatch(filtered);
+    const availabilityResults = await checker.checkBatch(filtered, scored);
 
     // Filtrer uniquement les disponibles
     const available = availabilityResults.filter((r) => r.status === "available");
