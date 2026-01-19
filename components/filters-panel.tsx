@@ -10,7 +10,7 @@ import { TLD_CATEGORIES, ALL_TLDS, BUSINESS_CATEGORIES, BRAND_STYLES, TONES } fr
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { X, Filter, Sparkles } from "lucide-react";
+import { X, Filter } from "lucide-react";
 
 interface FiltersPanelProps {
   onFiltersChange: (filters: any) => void;
@@ -48,6 +48,11 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
     updateFilter("tlds", newTlds);
   };
 
+  // Convertir les constantes en tableaux pour éviter les erreurs
+  const brandStylesArray = Array.from(BRAND_STYLES);
+  const businessCategoriesArray = Array.from(BUSINESS_CATEGORIES);
+  const tonesArray = Array.from(TONES);
+
   return (
     <Card className="glass sticky top-6">
       <CardHeader className="pb-4">
@@ -58,34 +63,34 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="format" className="w-full">
-          <TabsList className="glass grid w-full grid-cols-5 mb-6 h-auto p-1">
+          <TabsList className="glass grid w-full grid-cols-5 gap-1 p-1 h-auto rounded-lg">
             <TabsTrigger 
               value="format" 
-              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-xs py-2.5 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all"
             >
               Format
             </TabsTrigger>
             <TabsTrigger 
               value="tlds" 
-              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-xs py-2.5 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all"
             >
               Extensions
             </TabsTrigger>
             <TabsTrigger 
               value="branding" 
-              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-xs py-2.5 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all"
             >
               Branding
             </TabsTrigger>
             <TabsTrigger 
               value="seo" 
-              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-xs py-2.5 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all"
             >
               SEO
             </TabsTrigger>
             <TabsTrigger 
               value="business" 
-              className="text-xs py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-xs py-2.5 px-2 rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all"
             >
               Business
             </TabsTrigger>
@@ -149,7 +154,6 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
                     onClick={() => selectTldCategory(cat as keyof typeof TLD_CATEGORIES)}
                     className="glass text-xs"
                   >
-                    <Sparkles className="h-3 w-3 mr-1" />
                     {cat}
                   </Button>
                 ))}
@@ -214,13 +218,13 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
 
             <div>
               <Label className="text-sm font-semibold mb-2 block">Style</Label>
-              <Select value={filters.style} onValueChange={(v) => updateFilter("style", v)}>
+              <Select value={filters.style || ""} onValueChange={(v) => updateFilter("style", v)}>
                 <SelectTrigger className="glass w-full">
                   <SelectValue placeholder="Tous les styles" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Tous</SelectItem>
-                  {BRAND_STYLES.map((style) => (
+                  {brandStylesArray.map((style) => (
                     <SelectItem key={style} value={style}>
                       {style}
                     </SelectItem>
@@ -241,13 +245,13 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
           <TabsContent value="business" className="space-y-4 mt-6">
             <div>
               <Label className="text-sm font-semibold mb-2 block">Catégorie</Label>
-              <Select value={filters.category} onValueChange={(v) => updateFilter("category", v)}>
+              <Select value={filters.category || ""} onValueChange={(v) => updateFilter("category", v)}>
                 <SelectTrigger className="glass w-full">
                   <SelectValue placeholder="Toutes les catégories" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Toutes</SelectItem>
-                  {BUSINESS_CATEGORIES.map((cat) => (
+                  {businessCategoriesArray.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {cat}
                     </SelectItem>
@@ -258,13 +262,13 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
 
             <div>
               <Label className="text-sm font-semibold mb-2 block">Ton</Label>
-              <Select value={filters.tone} onValueChange={(v) => updateFilter("tone", v)}>
+              <Select value={filters.tone || ""} onValueChange={(v) => updateFilter("tone", v)}>
                 <SelectTrigger className="glass w-full">
                   <SelectValue placeholder="Tous les tons" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Tous</SelectItem>
-                  {TONES.map((tone) => (
+                  {tonesArray.map((tone) => (
                     <SelectItem key={tone} value={tone}>
                       {tone}
                     </SelectItem>
