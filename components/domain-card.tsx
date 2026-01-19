@@ -36,7 +36,7 @@ export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
     return "text-yellow-400";
   };
 
-  const price = domain.availability.price;
+  const price = domain.availability.price ?? null;
   const isPremium = price === null;
 
   return (
