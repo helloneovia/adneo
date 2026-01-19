@@ -46,7 +46,7 @@ export function FiltersPanel({ onFiltersChange, lang }: FiltersPanelProps) {
   };
 
   return (
-    <Card className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 shadow-lg">
+    <Card className="glass border-primary/20 hover:border-primary/40 transition-all duration-300 shadow-lg w-full max-w-5xl mx-auto">
       <CardHeader className="pb-4 border-b border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

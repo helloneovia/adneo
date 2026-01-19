@@ -244,7 +244,7 @@ export default function Home() {
           </div>
 
           {/* Filters Panel - Above Search */}
-          <div className="mb-8">
+          <div className="mb-12">
             <FiltersPanel onFiltersChange={handleFiltersChange} lang={lang} />
           </div>
 

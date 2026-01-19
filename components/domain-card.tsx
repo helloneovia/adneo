@@ -64,74 +64,75 @@ export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:via-primary/5 group-hover:to-primary/10 transition-all duration-500 pointer-events-none" />
 
       <CardContent className="pt-6 pb-4 relative">
-        <div className="mb-4">
-          <h3 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
+        <div className="mb-5">
+          <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">
             {domain.fullDomain}
           </h3>
-          <div className="flex gap-2 flex-wrap items-center">
-            <Badge variant="outline" className="glass border-primary/30 text-primary">
+          <div className="flex gap-2 flex-wrap items-center mb-3">
+            <Badge variant="outline" className="glass border-primary/30 text-primary font-medium">
               {domain.tld}
             </Badge>
             {domain.tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="secondary" className="glass">
+              <Badge key={tag} variant="secondary" className="glass text-xs">
                 {tag}
               </Badge>
             ))}
-            {hasPrice && (
-              <Badge variant="outline" className="glass border-green-500/30 text-green-400 flex items-center gap-1">
-                <DollarSign className="h-3 w-3" />
-                {formatPrice(price)}
-              </Badge>
-            )}
-            {isPremium && !hasPrice && (
-              <Badge variant="outline" className="glass border-yellow-500/30 text-yellow-400 flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                {formatPrice(null)}
-              </Badge>
-            )}
           </div>
+          {/* Price display - improved */}
+          {hasPrice && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30">
+              <span className="text-green-400 font-bold text-base">{formatPrice(price)}</span>
+              <span className="text-xs text-green-400/70">GoDaddy</span>
+            </div>
+          )}
+          {isPremium && !hasPrice && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+              <Sparkles className="h-3.5 w-3.5 text-yellow-400" />
+              <span className="text-yellow-400 font-semibold">{formatPrice(null)}</span>
+            </div>
+          )}
         </div>
 
-        {/* Score breakdown */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">{t("results.brandability", lang)}</span>
-            <div className="flex items-center gap-2">
-              <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
+        {/* Score breakdown - improved */}
+        <div className="space-y-3 mb-5 p-4 rounded-xl glass border border-border/30">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground font-medium">{t("results.brandability", lang)}</span>
+            <div className="flex items-center gap-3">
+              <div className="w-32 h-2 bg-secondary/50 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-primary to-blue-400 transition-all duration-500"
-                  style={{ width: `${(domain.score.brandability / 30) * 100}%` }}
+                  className="h-full bg-gradient-to-r from-primary to-blue-400 transition-all duration-500 rounded-full"
+                  style={{ width: `${Math.min((domain.score.brandability / 30) * 100, 100)}%` }}
                 />
               </div>
-              <span className="text-foreground font-medium w-8 text-right">
+              <span className="text-foreground font-bold w-10 text-right text-primary">
                 {domain.score.brandability}
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">{t("results.pronounceability", lang)}</span>
-            <div className="flex items-center gap-2">
-              <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground font-medium">{t("results.pronounceability", lang)}</span>
+            <div className="flex items-center gap-3">
+              <div className="w-32 h-2 bg-secondary/50 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-green-400 to-emerald-400 transition-all duration-500"
-                  style={{ width: `${(domain.score.pronounceability / 20) * 100}%` }}
+                  className="h-full bg-gradient-to-r from-green-400 to-emerald-400 transition-all duration-500 rounded-full"
+                  style={{ width: `${Math.min((domain.score.pronounceability / 20) * 100, 100)}%` }}
                 />
               </div>
-              <span className="text-foreground font-medium w-8 text-right">
+              <span className="text-foreground font-bold w-10 text-right text-green-400">
                 {domain.score.pronounceability}
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">{t("results.seoFit", lang)}</span>
-            <div className="flex items-center gap-2">
-              <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground font-medium">{t("results.seoFit", lang)}</span>
+            <div className="flex items-center gap-3">
+              <div className="w-32 h-2 bg-secondary/50 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-500"
-                  style={{ width: `${(domain.score.seoKeywordFit / 15) * 100}%` }}
+                  className="h-full bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-500 rounded-full"
+                  style={{ width: `${Math.min((domain.score.seoKeywordFit / 15) * 100, 100)}%` }}
                 />
               </div>
-              <span className="text-foreground font-medium w-8 text-right">
+              <span className="text-foreground font-bold w-10 text-right text-purple-400">
                 {domain.score.seoKeywordFit}
               </span>
             </div>
