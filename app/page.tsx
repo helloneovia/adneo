@@ -9,7 +9,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchRequest, SearchProgress, SearchResult, FinalDomainResult, SortOption } from "@/lib/types";
-import { Download, Sparkles, Zap, Shield } from "lucide-react";
+import { Download, Sparkles, Zap, Shield, TrendingUp } from "lucide-react";
 import { Language, getLanguage, t } from "@/lib/i18n";
 
 export default function Home() {
