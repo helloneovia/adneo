@@ -268,12 +268,10 @@ export function passesFilters(candidate: Candidate, filters: SearchFilters, keyw
 
 export function buildResultPayload({
   label,
-  tld,
   keywords,
   filters,
 }: {
   label: string;
-  tld: string;
   keywords: string[];
   filters: SearchFilters;
 }): { score: number; scores: DomainScores; tags: string[] } {

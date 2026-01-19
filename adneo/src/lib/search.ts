@@ -99,7 +99,6 @@ export async function* runSearch({
       if (item.availability.status === "available") {
         const { score, scores, tags } = buildResultPayload({
           label: item.label,
-          tld: item.tld,
           keywords,
           filters,
         });
