@@ -36,8 +36,9 @@ export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
     return "text-yellow-400";
   };
 
-  const price = domain.availability.price ?? null;
-  const isPremium = price === null;
+  const price = domain.availability.price;
+  const isPremium = price === null || price === undefined;
+  const hasPrice = price !== null && price !== undefined;
 
   return (
     <Card className="group relative glass hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 overflow-hidden">
@@ -76,14 +77,15 @@ export function DomainCard({ domain, onCopy, lang }: DomainCardProps) {
                 {tag}
               </Badge>
             ))}
-            {price !== null && (
+            {hasPrice && (
               <Badge variant="outline" className="glass border-green-500/30 text-green-400 flex items-center gap-1">
                 <DollarSign className="h-3 w-3" />
                 {formatPrice(price)}
               </Badge>
             )}
-            {isPremium && (
-              <Badge variant="outline" className="glass border-yellow-500/30 text-yellow-400">
+            {isPremium && !hasPrice && (
+              <Badge variant="outline" className="glass border-yellow-500/30 text-yellow-400 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
                 {formatPrice(null)}
               </Badge>
             )}

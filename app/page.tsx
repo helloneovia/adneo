@@ -243,6 +243,11 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Filters Panel - Above Search */}
+          <div className="mb-8">
+            <FiltersPanel onFiltersChange={handleFiltersChange} lang={lang} />
+          </div>
+
           <SearchForm onSearch={handleSearch} isLoading={isLoading} lang={lang} />
 
           {progress && (
@@ -250,11 +255,6 @@ export default function Home() {
               <ProgressBar progress={progress} lang={lang} />
             </div>
           )}
-        </section>
-
-        {/* Filters Panel - Horizontal */}
-        <section className="mb-8">
-          <FiltersPanel onFiltersChange={handleFiltersChange} lang={lang} />
         </section>
 
         {/* Results */}
