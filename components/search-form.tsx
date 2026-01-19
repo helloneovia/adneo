@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 
 interface SearchFormProps {
   onSearch: (keywords: string[], mode: "smart" | "exact" | "batch") => void;
@@ -29,39 +29,58 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto space-y-4">
-      <div className="flex gap-2">
-        <div className="flex-1 relative">
-          {mode === "batch" ? (
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Entrez un mot par ligne&#10;ex: vault&#10;neo&#10;finance"
-              className="w-full min-h-[120px] rounded-md border border-input bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-          ) : (
-            <Input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="ex: neo finance, ai fitness, secure vault..."
-              className="h-14 text-lg"
-            />
-          )}
+    <form onSubmit={handleSubmit} className="w-full max-w-5xl mx-auto space-y-6">
+      <div className="relative group">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-blue-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="relative glass rounded-2xl p-2 flex gap-3">
+          <div className="flex-1 relative">
+            {mode === "batch" ? (
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Entrez un mot par ligne&#10;ex: vault&#10;neo&#10;finance"
+                className="w-full min-h-[140px] rounded-xl border-0 bg-background/50 px-6 py-4 text-base ring-0 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-muted-foreground/60 resize-none"
+              />
+            ) : (
+              <div className="relative">
+                <Input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="ex: neo finance, ai fitness, secure vault..."
+                  className="h-16 text-lg bg-background/50 border-0 focus-visible:ring-2 focus-visible:ring-primary/50 placeholder:text-muted-foreground/60 pl-6 pr-14"
+                />
+                <Sparkles className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/50" />
+              </div>
+            )}
+          </div>
+          <Button
+            type="submit"
+            size="lg"
+            disabled={isLoading || !input.trim()}
+            className="h-16 px-8 text-base font-semibold glow-primary hover:glow-primary transition-all duration-300"
+          >
+            <Search className="mr-2 h-5 w-5" />
+            {isLoading ? "Recherche..." : "Rechercher"}
+          </Button>
         </div>
-        <Button type="submit" size="lg" disabled={isLoading || !input.trim()} className="h-14 px-8">
-          <Search className="mr-2 h-5 w-5" />
-          {isLoading ? "Recherche..." : "Rechercher"}
-        </Button>
       </div>
 
-      <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-        <TabsList>
-          <TabsTrigger value="smart">Smart Mode</TabsTrigger>
-          <TabsTrigger value="exact">Exact Match</TabsTrigger>
-          <TabsTrigger value="batch">Batch Mode</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex justify-center">
+        <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)} className="w-full max-w-md">
+          <TabsList className="glass w-full grid grid-cols-3 p-1.5">
+            <TabsTrigger value="smart" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Smart Mode
+            </TabsTrigger>
+            <TabsTrigger value="exact" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Exact Match
+            </TabsTrigger>
+            <TabsTrigger value="batch" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Batch Mode
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
     </form>
   );
 }

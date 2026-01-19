@@ -10,7 +10,7 @@ import { TLD_CATEGORIES, ALL_TLDS, BUSINESS_CATEGORIES, BRAND_STYLES, TONES } fr
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { X } from "lucide-react";
+import { X, Filter, Sparkles } from "lucide-react";
 
 interface FiltersPanelProps {
   onFiltersChange: (filters: any) => void;
@@ -49,26 +49,31 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Filtres avancés</CardTitle>
+    <Card className="glass sticky top-6">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-2">
+          <Filter className="h-5 w-5 text-primary" />
+          <CardTitle className="text-xl">Filtres avancés</CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="format" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="format">Format</TabsTrigger>
-            <TabsTrigger value="tlds">Extensions</TabsTrigger>
-            <TabsTrigger value="branding">Branding</TabsTrigger>
-            <TabsTrigger value="seo">SEO</TabsTrigger>
-            <TabsTrigger value="business">Business</TabsTrigger>
+          <TabsList className="glass grid w-full grid-cols-5 mb-6">
+            <TabsTrigger value="format" className="text-xs">Format</TabsTrigger>
+            <TabsTrigger value="tlds" className="text-xs">Extensions</TabsTrigger>
+            <TabsTrigger value="branding" className="text-xs">Branding</TabsTrigger>
+            <TabsTrigger value="seo" className="text-xs">SEO</TabsTrigger>
+            <TabsTrigger value="business" className="text-xs">Business</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="format" className="space-y-4">
+          <TabsContent value="format" className="space-y-6">
             <div>
-              <Label>Longueur: {filters.minLength} - {filters.maxLength} caractères</Label>
-              <div className="flex gap-4 mt-2">
-                <div className="flex-1">
-                  <Label className="text-xs">Min</Label>
+              <Label className="text-sm font-semibold mb-3 block">
+                Longueur: {filters.minLength} - {filters.maxLength} caractères
+              </Label>
+              <div className="flex gap-4">
+                <div className="flex-1 space-y-2">
+                  <Label className="text-xs text-muted-foreground">Min</Label>
                   <Slider
                     value={[filters.minLength]}
                     onValueChange={([v]) => updateFilter("minLength", v)}
@@ -77,8 +82,8 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
                     step={1}
                   />
                 </div>
-                <div className="flex-1">
-                  <Label className="text-xs">Max</Label>
+                <div className="flex-1 space-y-2">
+                  <Label className="text-xs text-muted-foreground">Max</Label>
                   <Slider
                     value={[filters.maxLength]}
                     onValueChange={([v]) => updateFilter("maxLength", v)}
@@ -90,16 +95,16 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label>Autoriser les tirets</Label>
+            <div className="flex items-center justify-between p-3 rounded-lg glass">
+              <Label className="text-sm">Autoriser les tirets</Label>
               <Switch
                 checked={filters.allowHyphens}
                 onCheckedChange={(v) => updateFilter("allowHyphens", v)}
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label>Autoriser les chiffres</Label>
+            <div className="flex items-center justify-between p-3 rounded-lg glass">
+              <Label className="text-sm">Autoriser les chiffres</Label>
               <Switch
                 checked={filters.allowDigits}
                 onCheckedChange={(v) => updateFilter("allowDigits", v)}
@@ -109,15 +114,17 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
 
           <TabsContent value="tlds" className="space-y-4">
             <div>
-              <Label>Catégories rapides</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <Label className="text-sm font-semibold mb-3 block">Catégories rapides</Label>
+              <div className="flex flex-wrap gap-2">
                 {Object.keys(TLD_CATEGORIES).map((cat) => (
                   <Button
                     key={cat}
                     variant="outline"
                     size="sm"
                     onClick={() => selectTldCategory(cat as keyof typeof TLD_CATEGORIES)}
+                    className="glass text-xs"
                   >
+                    <Sparkles className="h-3 w-3 mr-1" />
                     {cat}
                   </Button>
                 ))}
@@ -125,13 +132,19 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             </div>
 
             <div>
-              <Label>Extensions sélectionnées ({filters.tlds.length})</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <Label className="text-sm font-semibold mb-3 block">
+                Extensions sélectionnées ({filters.tlds.length})
+              </Label>
+              <div className="flex flex-wrap gap-2">
                 {filters.tlds.map((tld) => (
-                  <Badge key={tld} variant="secondary" className="cursor-pointer">
+                  <Badge
+                    key={tld}
+                    variant="secondary"
+                    className="glass cursor-pointer hover:bg-primary/20 transition-colors group"
+                  >
                     {tld}
                     <X
-                      className="ml-1 h-3 w-3"
+                      className="ml-1.5 h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => toggleTld(tld)}
                     />
                   </Badge>
@@ -140,14 +153,15 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             </div>
 
             <div>
-              <Label>Toutes les extensions</Label>
-              <div className="flex flex-wrap gap-2 mt-2 max-h-40 overflow-y-auto">
+              <Label className="text-sm font-semibold mb-3 block">Toutes les extensions</Label>
+              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 glass rounded-lg">
                 {ALL_TLDS.map((tld) => (
                   <Button
                     key={tld}
                     variant={filters.tlds.includes(tld) ? "default" : "outline"}
                     size="sm"
                     onClick={() => toggleTld(tld)}
+                    className="text-xs"
                   >
                     {tld}
                   </Button>
@@ -156,30 +170,32 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="branding" className="space-y-4">
+          <TabsContent value="branding" className="space-y-6">
             <div>
-              <Label>Score de brandabilité minimum</Label>
+              <Label className="text-sm font-semibold mb-3 block">
+                Score de brandabilité minimum: {filters.minBrandScore}/30
+              </Label>
               <Slider
                 value={[filters.minBrandScore]}
                 onValueChange={([v]) => updateFilter("minBrandScore", v)}
                 min={0}
                 max={30}
                 step={1}
-                className="mt-2"
               />
-              <p className="text-xs text-muted-foreground mt-1">{filters.minBrandScore}/30</p>
             </div>
 
             <div>
-              <Label>Style</Label>
+              <Label className="text-sm font-semibold mb-2 block">Style</Label>
               <Select value={filters.style} onValueChange={(v) => updateFilter("style", v)}>
-                <SelectTrigger>
+                <SelectTrigger className="glass">
                   <SelectValue placeholder="Tous les styles" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Tous</SelectItem>
                   {BRAND_STYLES.map((style) => (
-                    <SelectItem key={style} value={style}>{style}</SelectItem>
+                    <SelectItem key={style} value={style}>
+                      {style}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -187,37 +203,43 @@ export function FiltersPanel({ onFiltersChange }: FiltersPanelProps) {
           </TabsContent>
 
           <TabsContent value="seo" className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Les filtres SEO seront appliqués automatiquement selon les mots-clés de recherche.
-            </p>
+            <div className="p-4 glass rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                Les filtres SEO seront appliqués automatiquement selon les mots-clés de recherche.
+              </p>
+            </div>
           </TabsContent>
 
           <TabsContent value="business" className="space-y-4">
             <div>
-              <Label>Catégorie</Label>
+              <Label className="text-sm font-semibold mb-2 block">Catégorie</Label>
               <Select value={filters.category} onValueChange={(v) => updateFilter("category", v)}>
-                <SelectTrigger>
+                <SelectTrigger className="glass">
                   <SelectValue placeholder="Toutes les catégories" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Toutes</SelectItem>
                   {BUSINESS_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label>Ton</Label>
+              <Label className="text-sm font-semibold mb-2 block">Ton</Label>
               <Select value={filters.tone} onValueChange={(v) => updateFilter("tone", v)}>
-                <SelectTrigger>
+                <SelectTrigger className="glass">
                   <SelectValue placeholder="Tous les tons" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Tous</SelectItem>
                   {TONES.map((tone) => (
-                    <SelectItem key={tone} value={tone}>{tone}</SelectItem>
+                    <SelectItem key={tone} value={tone}>
+                      {tone}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

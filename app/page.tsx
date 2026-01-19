@@ -8,7 +8,7 @@ import { FiltersPanel } from "@/components/filters-panel";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchRequest, SearchProgress, SearchResult, FinalDomainResult, SortOption } from "@/lib/types";
-import { Download, Sparkles } from "lucide-react";
+import { Download, Sparkles, Zap, Shield, TrendingUp } from "lucide-react";
 
 export default function Home() {
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -37,7 +37,6 @@ export default function Home() {
     setResults([]);
 
     try {
-      // Simuler la progression via SSE (pour MVP, on fait une requête simple)
       const request: SearchRequest = {
         keywords: searchKeywords,
         tlds: filters.tlds,
@@ -54,7 +53,6 @@ export default function Home() {
         },
       };
 
-      // Simuler progression
       setProgress({
         stage: "generating",
         progress: 10,
@@ -80,7 +78,6 @@ export default function Home() {
         details: { checking: { current: 0, total: 100, tlds: filters.tlds.length } },
       });
 
-      // Appel API
       const response = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -160,41 +157,81 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-[#0a0f1a]">
+      {/* Animated background gradient */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+      </div>
+
       {/* Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4">
+      <header className="relative border-b border-border/50 backdrop-blur-sm bg-background/80">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl font-bold">ADNEO</h1>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Sparkles className="h-7 w-7 text-primary animate-pulse" />
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold gradient-text">ADNEO</h1>
+                <p className="text-xs text-muted-foreground -mt-1">Premium Domain Finder</p>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground hidden md:block">
-              Premium Domain Finder
-            </p>
+            <div className="hidden md:flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Zap className="h-4 w-4 text-primary" />
+                <span>Ultra rapide</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Shield className="h-4 w-4 text-primary" />
+                <span>Résultats vérifiés</span>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-12">
         {/* Hero Search Section */}
-        <section className="mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold mb-2">
-              Trouvez des domaines premium disponibles
+        <section className="mb-16">
+          <div className="text-center mb-12 space-y-4">
+            <h2 className="text-5xl md:text-6xl font-bold mb-4 leading-tight">
+              Trouvez des domaines{" "}
+              <span className="gradient-text">premium</span> disponibles
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Génération intelligente • Vérification multi-extensions • Résultats disponibles uniquement
             </p>
+            
+            {/* Features badges */}
+            <div className="flex flex-wrap justify-center gap-4 mt-8">
+              <div className="glass px-4 py-2 rounded-full text-sm flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <span>50+ extensions</span>
+              </div>
+              <div className="glass px-4 py-2 rounded-full text-sm flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                <span>&lt; 60 secondes</span>
+              </div>
+              <div className="glass px-4 py-2 rounded-full text-sm flex items-center gap-2">
+                <Shield className="h-4 w-4 text-primary" />
+                <span>100% disponibles</span>
+              </div>
+            </div>
           </div>
 
           <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
-          {progress && <div className="mt-8"><ProgressBar progress={progress} /></div>}
+          {progress && (
+            <div className="mt-8 animate-fade-in">
+              <ProgressBar progress={progress} />
+            </div>
+          )}
         </section>
 
         {/* Filters & Results */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Filters */}
           <aside className="lg:col-span-1">
             <FiltersPanel onFiltersChange={handleFiltersChange} />
@@ -203,15 +240,16 @@ export default function Home() {
           {/* Results */}
           <div className="lg:col-span-3">
             {results.length > 0 && (
-              <div className="mb-6 flex items-center justify-between">
+              <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-2xl font-bold">
+                  <h3 className="text-3xl font-bold mb-1">
                     {results.length} domaine{results.length > 1 ? "s" : ""} disponible{results.length > 1 ? "s" : ""}
                   </h3>
+                  <p className="text-sm text-muted-foreground">Tous vérifiés et prêts à l'achat</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[180px] glass">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -222,7 +260,7 @@ export default function Home() {
                       <SelectItem value="keyword-strongest">Meilleur SEO</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button onClick={handleExportCSV} variant="outline">
+                  <Button onClick={handleExportCSV} variant="outline" className="glass">
                     <Download className="mr-2 h-4 w-4" />
                     Export CSV
                   </Button>
@@ -231,8 +269,11 @@ export default function Home() {
             )}
 
             {results.length === 0 && !isLoading && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">
+              <div className="text-center py-20">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6">
+                  <Sparkles className="h-10 w-10 text-primary" />
+                </div>
+                <p className="text-lg text-muted-foreground max-w-md mx-auto">
                   {keywords.length > 0
                     ? "Aucun domaine disponible trouvé. Essayez d'autres mots-clés ou ajustez les filtres."
                     : "Commencez une recherche pour trouver des domaines premium disponibles"}
@@ -240,9 +281,15 @@ export default function Home() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sortedResults.map((domain) => (
-                <DomainCard key={domain.fullDomain} domain={domain} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {sortedResults.map((domain, index) => (
+                <div
+                  key={domain.fullDomain}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <DomainCard domain={domain} />
+                </div>
               ))}
             </div>
           </div>
