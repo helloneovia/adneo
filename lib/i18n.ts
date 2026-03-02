@@ -1,6 +1,8 @@
-export type Language = "fr" | "en" | "es" | "zh";
+export type Language = "fr" | "en" | "es" | "zh" | "de" | "it" | "pt" | "nl" | "ja" | "ko" | "ar" | "hi" | "ru" | "tr";
 
-export const translations = {
+export const SUPPORTED_LANGUAGES: Language[] = ["fr", "en", "es", "zh", "de", "it", "pt", "nl", "ja", "ko", "ar", "hi", "ru", "tr"];
+
+const baseTranslations = {
   fr: {
     header: {
       title: "ADNEO",
@@ -423,6 +425,20 @@ export const translations = {
   },
 } as const;
 
+export const translations = {
+  ...baseTranslations,
+  de: baseTranslations.en,
+  it: baseTranslations.en,
+  pt: baseTranslations.en,
+  nl: baseTranslations.en,
+  ja: baseTranslations.en,
+  ko: baseTranslations.en,
+  ar: baseTranslations.en,
+  hi: baseTranslations.en,
+  ru: baseTranslations.en,
+  tr: baseTranslations.en,
+} as const;
+
 export function getLanguage(): Language {
   if (typeof window === "undefined") return "en";
   
@@ -432,6 +448,16 @@ export function getLanguage(): Language {
   if (langCode === "fr") return "fr";
   if (langCode === "es") return "es";
   if (langCode === "zh") return "zh";
+  if (langCode === "de") return "de";
+  if (langCode === "it") return "it";
+  if (langCode === "pt") return "pt";
+  if (langCode === "nl") return "nl";
+  if (langCode === "ja") return "ja";
+  if (langCode === "ko") return "ko";
+  if (langCode === "ar") return "ar";
+  if (langCode === "hi") return "hi";
+  if (langCode === "ru") return "ru";
+  if (langCode === "tr") return "tr";
   return "en";
 }
 
