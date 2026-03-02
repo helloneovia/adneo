@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -9,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Language, getLanguage } from "@/lib/i18n";
+import { Language } from "@/lib/i18n";
 import { Globe } from "lucide-react";
 
 interface LanguageSwitcherProps {
@@ -23,6 +21,16 @@ export function LanguageSwitcher({ currentLang, onLanguageChange }: LanguageSwit
     { code: "en" as Language, name: "English", flag: "🇬🇧" },
     { code: "es" as Language, name: "Español", flag: "🇪🇸" },
     { code: "zh" as Language, name: "中文", flag: "🇨🇳" },
+    { code: "de" as Language, name: "Deutsch", flag: "🇩🇪" },
+    { code: "it" as Language, name: "Italiano", flag: "🇮🇹" },
+    { code: "pt" as Language, name: "Português", flag: "🇵🇹" },
+    { code: "nl" as Language, name: "Nederlands", flag: "🇳🇱" },
+    { code: "ja" as Language, name: "日本語", flag: "🇯🇵" },
+    { code: "ko" as Language, name: "한국어", flag: "🇰🇷" },
+    { code: "ar" as Language, name: "العربية", flag: "🇸🇦" },
+    { code: "hi" as Language, name: "हिन्दी", flag: "🇮🇳" },
+    { code: "ru" as Language, name: "Русский", flag: "🇷🇺" },
+    { code: "tr" as Language, name: "Türkçe", flag: "🇹🇷" },
   ];
 
   return (
