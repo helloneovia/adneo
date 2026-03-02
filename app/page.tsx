@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchRequest, SearchProgress, SearchResult, FinalDomainResult, SortOption } from "@/lib/types";
 import { Download, Sparkles, Zap, Shield, TrendingUp } from "lucide-react";
-import { Language, getLanguage, t } from "@/lib/i18n";
+import { getLanguage, t } from "@/lib/i18n";
+import { isSupportedLanguage, Language } from "@/lib/languages";
 
 export default function Home() {
   const [lang, setLang] = useState<Language>("en");
@@ -39,7 +40,7 @@ export default function Home() {
   // Charger la langue depuis localStorage si disponible
   useEffect(() => {
     const savedLang = localStorage.getItem("adneo-lang") as Language;
-    if (savedLang && ["fr", "en", "es", "zh"].includes(savedLang)) {
+    if (savedLang && isSupportedLanguage(savedLang)) {
       setLang(savedLang);
     }
   }, []);

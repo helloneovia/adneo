@@ -1,6 +1,8 @@
-export type Language = "fr" | "en" | "es" | "zh";
+import { extraTranslations } from "@/lib/translations-extra";
+import { detectBrowserLanguage, Language } from "@/lib/languages";
 
-export const translations = {
+export type { Language } from "@/lib/languages";
+const baseTranslations = {
   fr: {
     header: {
       title: "ADNEO",
@@ -423,16 +425,14 @@ export const translations = {
   },
 } as const;
 
+export const translations = {
+  ...baseTranslations,
+  ...extraTranslations,
+} as const;
+
+export { SUPPORTED_LANGUAGES } from "@/lib/languages";
 export function getLanguage(): Language {
-  if (typeof window === "undefined") return "en";
-  
-  const browserLang = navigator.language || navigator.languages?.[0] || "en";
-  const langCode = browserLang.split("-")[0].toLowerCase();
-  
-  if (langCode === "fr") return "fr";
-  if (langCode === "es") return "es";
-  if (langCode === "zh") return "zh";
-  return "en";
+  return detectBrowserLanguage();
 }
 
 export function t(key: string, lang: Language = "en", params?: Record<string, string | number>): string {
