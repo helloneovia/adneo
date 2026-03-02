@@ -1,6 +1,10 @@
-export type Language = "fr" | "en" | "es" | "zh";
+import { extraTranslations } from "@/lib/translations-extra";
 
-export const translations = {
+export type Language = "fr" | "en" | "es" | "zh" | "de" | "it" | "pt" | "nl" | "ja" | "ko" | "ar" | "hi" | "ru" | "tr";
+
+export const SUPPORTED_LANGUAGES: Language[] = ["fr", "en", "es", "zh", "de", "it", "pt", "nl", "ja", "ko", "ar", "hi", "ru", "tr"];
+
+const baseTranslations = {
   fr: {
     header: {
       title: "ADNEO",
@@ -423,6 +427,11 @@ export const translations = {
   },
 } as const;
 
+export const translations = {
+  ...baseTranslations,
+  ...extraTranslations,
+} as const;
+
 export function getLanguage(): Language {
   if (typeof window === "undefined") return "en";
   
@@ -432,6 +441,16 @@ export function getLanguage(): Language {
   if (langCode === "fr") return "fr";
   if (langCode === "es") return "es";
   if (langCode === "zh") return "zh";
+  if (langCode === "de") return "de";
+  if (langCode === "it") return "it";
+  if (langCode === "pt") return "pt";
+  if (langCode === "nl") return "nl";
+  if (langCode === "ja") return "ja";
+  if (langCode === "ko") return "ko";
+  if (langCode === "ar") return "ar";
+  if (langCode === "hi") return "hi";
+  if (langCode === "ru") return "ru";
+  if (langCode === "tr") return "tr";
   return "en";
 }
 
