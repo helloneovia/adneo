@@ -1,6 +1,27 @@
-export type Language = "fr" | "en" | "es" | "zh";
+import { extraTranslations } from "@/lib/translations-extra";
 
-export const translations = {
+export type Language = "fr" | "en" | "es" | "zh" | "de" | "it" | "pt" | "nl" | "ja" | "ko" | "ar" | "hi" | "ru" | "tr";
+
+export const SUPPORTED_LANGUAGES: Language[] = ["fr", "en", "es", "zh", "de", "it", "pt", "nl", "ja", "ko", "ar", "hi", "ru", "tr"];
+
+export const LANGUAGE_OPTIONS: { code: Language; name: string; flag: string }[] = [
+  { code: "fr", name: "Français", flag: "🇫🇷" },
+  { code: "en", name: "English", flag: "🇬🇧" },
+  { code: "es", name: "Español", flag: "🇪🇸" },
+  { code: "zh", name: "中文", flag: "🇨🇳" },
+  { code: "de", name: "Deutsch", flag: "🇩🇪" },
+  { code: "it", name: "Italiano", flag: "🇮🇹" },
+  { code: "pt", name: "Português", flag: "🇵🇹" },
+  { code: "nl", name: "Nederlands", flag: "🇳🇱" },
+  { code: "ja", name: "日本語", flag: "🇯🇵" },
+  { code: "ko", name: "한국어", flag: "🇰🇷" },
+  { code: "ar", name: "العربية", flag: "🇸🇦" },
+  { code: "hi", name: "हिन्दी", flag: "🇮🇳" },
+  { code: "ru", name: "Русский", flag: "🇷🇺" },
+  { code: "tr", name: "Türkçe", flag: "🇹🇷" },
+];
+
+const baseTranslations = {
   fr: {
     header: {
       title: "ADNEO",
@@ -423,26 +444,32 @@ export const translations = {
   },
 } as const;
 
+export const translations = {
+  ...baseTranslations,
+  ...extraTranslations,
+} as const;
+
 export function getLanguage(): Language {
   if (typeof window === "undefined") return "en";
-  
+
   const browserLang = navigator.language || navigator.languages?.[0] || "en";
   const langCode = browserLang.split("-")[0].toLowerCase();
-  
-  if (langCode === "fr") return "fr";
-  if (langCode === "es") return "es";
-  if (langCode === "zh") return "zh";
+
+  if (SUPPORTED_LANGUAGES.includes(langCode as Language)) {
+    return langCode as Language;
+  }
+
   return "en";
 }
 
 export function t(key: string, lang: Language = "en", params?: Record<string, string | number>): string {
   const keys = key.split(".");
   let value: any = translations[lang];
-  
+
   for (const k of keys) {
     value = value?.[k];
   }
-  
+
   if (typeof value !== "string") {
     // Fallback to English
     value = translations.en;
@@ -450,10 +477,10 @@ export function t(key: string, lang: Language = "en", params?: Record<string, st
       value = value?.[k];
     }
   }
-  
+
   if (typeof value === "string" && params) {
     return value.replace(/\{(\w+)\}/g, (_, key) => String(params[key] || ""));
   }
-  
+
   return value || key;
 }
