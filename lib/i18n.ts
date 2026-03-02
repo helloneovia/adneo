@@ -427,6 +427,7 @@ const baseTranslations = {
 
 export const translations = {
   ...baseTranslations,
+codex/add-ten-languages-to-site-s6y3oj
   de: {
     header: { title: "ADNEO", subtitle: "Premium-Domain-Finder", features: { fast: "Ultraschnell", verified: "Verifizierte Ergebnisse" } },
     hero: { title: "Finde", titleHighlight: "Premium", titleEnd: "verfügbare Domains", subtitle: "Intelligente Generierung • Multi-Endungs-Prüfung • Nur verfügbare Ergebnisse", badges: { extensions: "50+ Endungen", speed: "< 60 Sekunden", available: "100% verfügbar" } },
@@ -507,6 +508,18 @@ export const translations = {
     progress: { generating: "Fikirler oluşturuluyor...", normalizing: "Normalleştiriliyor...", checking: "Uygunluk kontrol ediliyor...", scoring: "Puanlar hesaplanıyor...", filtering: "Filtreleniyor...", done: "Tamamlandı", inProgress: "Devam ediyor...", generated: "fikir üretildi", unique: "benzersiz", checked: "Kontrol edildi", extensions: "Uzantılar", available: "Uygun" },
     results: { title: "{count} uygun alan adı{plural}", subtitle: "Hepsi doğrulandı ve satın almaya hazır", empty: "Uygun premium alan adlarını bulmak için arama başlatın", emptyFiltered: "Uygun alan adı bulunamadı. Başka anahtar kelimeler deneyin veya filtreleri ayarlayın.", sort: { bestMatch: "En iyi eşleşme", shortest: "En kısa", highestScore: "En yüksek puan", mostPremium: "En premium", keywordStrongest: "En iyi SEO" }, export: "CSV dışa aktar", buy: "GoDaddy üzerinden satın al", copy: "Kopyala", copied: "Kopyalandı!", favorite: "Favorilere ekle", score: "puan", brandability: "Marka uygunluğu", pronounceability: "Telaffuz edilebilirlik", seoFit: "SEO uyumu", length: "Uzunluk" },
   },
+
+  de: baseTranslations.en,
+  it: baseTranslations.en,
+  pt: baseTranslations.en,
+  nl: baseTranslations.en,
+  ja: baseTranslations.en,
+  ko: baseTranslations.en,
+  ar: baseTranslations.en,
+  hi: baseTranslations.en,
+  ru: baseTranslations.en,
+  tr: baseTranslations.en,
+main
 } as const;
 
 export function getLanguage(): Language {
