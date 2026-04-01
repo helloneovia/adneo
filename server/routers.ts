@@ -389,6 +389,18 @@ export const appRouter = router({
         }));
       }),
 
+      upsert: adminProcedure
+        .input(
+          z.object({
+            key: z.string().min(1),
+            value: z.string(),
+            description: z.string().optional(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          await upsertApiConfig(input.key, input.value, input.description);
+          return { success: true };
+        }),
       set: adminProcedure
         .input(
           z.object({
