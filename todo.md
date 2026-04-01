@@ -38,9 +38,9 @@
 - [x] Checkpoint et push GitHub
 
 ## Phase 7 : Corrections production
-- [ ] Remplacer storagePut Manus par client S3 Cloudflare R2 (bucket adneo-media)
-- [ ] Ajouter variables d'env R2 dans env.ts et Dockerfile
-- [ ] Corriger handleFileUpload dans Announcements.tsx (setUploading dans onSuccess/onError)
-- [ ] Corriger ParuVendu : mode simulation si clé 5sim absente (au lieu d'erreur hard)
-- [ ] Corriger Vivastreet : mode simulation si clé Capmonster absente (au lieu d'erreur hard)
-- [ ] Push GitHub pour déploiement automatique
+- [x] Remplacer storagePut Manus par client S3 Cloudflare R2 (bucket adneo-media)
+- [x] Ajouter variables d'env R2 dans env.ts et Dockerfile
+- [x] Corriger handleFileUpload dans Announcements.tsx (setUploading dans onSuccess/onError)
+- [x] Corriger ParuVendu : mode simulation si clé 5sim absente (au lieu d'erreur hard)
+- [x] Corriger Vivastreet : mode simulation si clé Capmonster absente (au lieu d'erreur hard)
+- [x] Push GitHub pour déploiement automatique
