@@ -1,12 +1,13 @@
 [phases.setup]
 nixPkgs = ["nodejs_20"]
+aptPkgs = ["libnss3", "libxss1", "libasound2", "libatk-bridge2.0-0", "libgtk-3-0", "libgbm-dev"]
 
 [phases.install]
 cmds = [
   "npm install -g corepack@latest",
   "corepack enable",
   "pnpm install --frozen-lockfile",
-  "npx playwright install --with-deps chromium"
+  "npx playwright install chromium"
 ]
 
 [phases.build]
