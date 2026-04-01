@@ -129,6 +129,15 @@ export async function runMigrations() {
   try {
     console.log("[Migration] Running database migrations...");
     await sql.unsafe(MIGRATION_SQL);
+    // Promote first registered user to admin if no admin exists yet
+    const adminCheck = await sql`SELECT id FROM "users" WHERE "role" = 'admin' LIMIT 1`;
+    if (adminCheck.length === 0) {
+      const firstUser = await sql`SELECT id FROM "users" ORDER BY id ASC LIMIT 1`;
+      if (firstUser.length > 0) {
+        await sql`UPDATE "users" SET "role" = 'admin' WHERE id = ${firstUser[0].id}`;
+        console.log("[Migration] ✓ First user promoted to admin.");
+      }
+    }
     console.log("[Migration] ✓ Migrations completed successfully.");
   } catch (error) {
     console.error("[Migration] ✗ Migration failed:", error);
