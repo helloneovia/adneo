@@ -5,7 +5,8 @@ nixPkgs = ["nodejs_20"]
 cmds = [
   "npm install -g corepack@latest",
   "corepack enable",
-  "pnpm install --frozen-lockfile"
+  "pnpm install --frozen-lockfile",
+  "npx playwright install --with-deps chromium"
 ]
 
 [phases.build]

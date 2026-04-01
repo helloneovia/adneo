@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { SUPPORTED_SITES, runSubmission } from "./automation";
+import { getQueue } from "./queue";
 import {
   createAnnouncement,
   createSession,
@@ -306,28 +307,19 @@ export const appRouter = router({
           if (siteLog) logIds[site] = siteLog.id;
         }
 
-        runSubmission(newSub.id, announcement, input.targetSites, logIds)
-          .then(async () => {
-            const logs = await getLogsBySubmission(newSub.id);
-            const allSuccess = logs.every((l) => l.status === "success");
-            const anyFailed = logs.some((l) => l.status === "failed");
-            const status = allSuccess ? "completed" : anyFailed ? "failed" : "completed";
-            await updateSubmissionStatus(newSub.id, status, { completedAt: new Date() });
-
-            if (anyFailed) {
-              await notifyOwner({
-                title: "ADNEO — Échec de dépôt d'annonce",
-                content: `La soumission #${newSub.id} de l'utilisateur #${ctx.user.id} a échoué sur certains sites.`,
-              });
-            }
-          })
-          .catch(async (err) => {
-            await updateSubmissionStatus(newSub.id, "failed", { completedAt: new Date() });
-            await notifyOwner({
-              title: "ADNEO — Erreur critique de soumission",
-              content: `Soumission #${newSub.id} : ${err.message}`,
-            });
-          });
+        const boss = await getQueue();
+        if (boss) {
+          await boss.send('submission', {
+            submissionId: newSub.id,
+            targetSites: input.targetSites,
+            logIds,
+            announcementId: input.announcementId,
+            userId: ctx.user.id
+          }, { retryLimit: 0 }); // No auto retry to avoid multi postings
+        } else {
+          console.warn("[Submissions] pg-boss not available, running inline.");
+          runSubmission(newSub.id, announcement, input.targetSites, logIds).catch(console.error);
+        }
 
         return { submissionId: newSub.id };
       }),

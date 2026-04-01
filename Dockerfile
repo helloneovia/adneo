@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM node:20-alpine AS builder
+FROM node:20-bullseye AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY . .
 RUN pnpm run build
 
 # ---- Production stage ----
-FROM node:20-alpine AS runner
+FROM mcr.microsoft.com/playwright:v1.44.0-jammy AS runner
 
 WORKDIR /app
 
