@@ -126,7 +126,14 @@ async function submitToSite(
     switch (siteId) {
       case "paruvendu": {
         addLog("Connexion à ParuVendu.fr...");
-        if (!fiveSimKey) throw new Error("Clé API 5sim manquante (requise pour ParuVendu)");
+        if (!fiveSimKey) {
+          addLog("[SIMULATION] Clé API 5sim non configurée — mode simulation activé");
+          addLog("[SIMULATION] Formulaire pré-rempli avec les données de l\'annonce");
+          addLog("[SIMULATION] Numéro virtuel simulé : +33600000000");
+          addLog("[SIMULATION] Code SMS simulé : 123456");
+          addLog("[SIMULATION] Annonce soumise avec succès (simulation)");
+          return { success: true, url: "https://www.paruvendu.fr/annonce/simulation", logs };
+        }
         addLog("Récupération d'un numéro virtuel via 5sim...");
         // const { orderId, phone } = await get5simNumber(fiveSimKey);
         // addLog(`Numéro obtenu : ${phone}`);
@@ -152,7 +159,12 @@ async function submitToSite(
 
       case "vivastreet": {
         addLog("Connexion à Vivastreet.com...");
-        if (!capmonsterKey) throw new Error("Clé API Capmonster manquante (requise pour Vivastreet)");
+        if (!capmonsterKey) {
+          addLog("[SIMULATION] Clé API Capmonster non configurée — mode simulation activé");
+          addLog("[SIMULATION] Challenge Cloudflare simulé et résolu");
+          addLog("[SIMULATION] Formulaire pré-rempli et soumis (simulation)");
+          return { success: true, url: "https://www.vivastreet.com/annonce/simulation", logs };
+        }
         addLog("Résolution du challenge Cloudflare via Capmonster...");
         // const token = await resolveCapmonsterCaptcha(capmonsterKey, "https://www.vivastreet.com", "sitekey");
         addLog("[SIMULATION] Challenge Cloudflare résolu");

@@ -75,9 +75,10 @@ export default function Announcements() {
   const uploadMutation = trpc.announcements.uploadImage.useMutation({
     onSuccess: (data) => {
       setForm((f) => ({ ...f, imageUrls: [...f.imageUrls, data.url] }));
+      setUploading(false);
       toast.success("Image uploadée !");
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => { setUploading(false); toast.error(e.message); },
   });
 
   const handleOpen = (ann?: typeof announcements extends (infer T)[] | undefined ? T : never) => {
@@ -122,7 +123,7 @@ export default function Announcements() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
@@ -130,9 +131,10 @@ export default function Announcements() {
     reader.onload = () => {
       const base64 = (reader.result as string).split(",")[1];
       uploadMutation.mutate({ filename: file.name, contentType: file.type, base64 });
-      setUploading(false);
     };
     reader.readAsDataURL(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
   };
 
   const addVariable = () => {
