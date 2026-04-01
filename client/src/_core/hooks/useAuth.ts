@@ -10,7 +10,7 @@ type UseAuthOptions = {
 
 export function useAuth(options?: UseAuthOptions) {
   const { redirectOnUnauthenticated = false, redirectPath } = options ?? {};
-  const resolvedRedirectPath = redirectPath ?? getLoginUrl();
+  const resolvedRedirectPath = useMemo(() => redirectPath ?? getLoginUrl(), [redirectPath]);
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
@@ -21,6 +21,7 @@ export function useAuth(options?: UseAuthOptions) {
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
       utils.auth.me.setData(undefined, null);
+      window.location.href = "/login";
     },
   });
 
@@ -42,10 +43,6 @@ export function useAuth(options?: UseAuthOptions) {
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
     return {
       user: meQuery.data ?? null,
       loading: meQuery.isLoading || logoutMutation.isPending,
@@ -67,7 +64,7 @@ export function useAuth(options?: UseAuthOptions) {
     if (typeof window === "undefined") return;
     if (window.location.pathname === resolvedRedirectPath) return;
 
-    window.location.href = resolvedRedirectPath
+    window.location.href = resolvedRedirectPath;
   }, [
     redirectOnUnauthenticated,
     resolvedRedirectPath,

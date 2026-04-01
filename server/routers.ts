@@ -3,11 +3,14 @@ import { z } from "zod";
 import { SUPPORTED_SITES, runSubmission } from "./automation";
 import {
   createAnnouncement,
+  createSession,
   createSubmission,
   createSubmissionLog,
   createTemplate,
+  createUser,
   deleteAnnouncement,
   deleteApiConfig,
+  deleteSession,
   deleteTemplate,
   getAllApiConfigs,
   getAllSubmissions,
@@ -20,9 +23,11 @@ import {
   getSubmissionsByUser,
   getTemplateById,
   getTemplatesByUser,
+  getUserByEmail,
   updateAnnouncement,
   updateSubmissionStatus,
   updateTemplate,
+  updateUserLastSignedIn,
   updateUserRole,
   upsertApiConfig,
 } from "./db";
@@ -32,6 +37,8 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -71,13 +78,96 @@ const templateInput = z.object({
   variables: z.record(z.string(), z.string()).optional().nullable(),
 });
 
+// ─── Session helpers ──────────────────────────────────────────────────────────
+const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+async function issueSession(
+  userId: number,
+  req: Parameters<typeof getSessionCookieOptions>[0],
+  res: { cookie: (name: string, value: string, options: object) => void }
+) {
+  const sessionId = randomBytes(48).toString("hex");
+  const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+  await createSession({ id: sessionId, userId, expiresAt });
+  const cookieOptions = getSessionCookieOptions(req);
+  res.cookie(COOKIE_NAME, sessionId, {
+    ...cookieOptions,
+    maxAge: SESSION_DURATION_MS,
+  });
+  return sessionId;
+}
+
 export const appRouter = router({
   system: systemRouter,
 
   // ─── Auth ──────────────────────────────────────────────────────────────────
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
+
+    register: publicProcedure
+      .input(
+        z.object({
+          name: z.string().min(2).max(255),
+          email: z.string().email(),
+          password: z.string().min(8).max(128),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const existing = await getUserByEmail(input.email);
+        if (existing) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Un compte existe déjà avec cet email.",
+          });
+        }
+
+        const passwordHash = await bcrypt.hash(input.password, 12);
+        const user = await createUser({
+          email: input.email.toLowerCase(),
+          name: input.name,
+          passwordHash,
+        });
+
+        if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+        await issueSession(user.id, ctx.req, ctx.res);
+        return { success: true, user: { id: user.id, name: user.name, email: user.email, role: user.role } };
+      }),
+
+    login: publicProcedure
+      .input(
+        z.object({
+          email: z.string().email(),
+          password: z.string().min(1),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const user = await getUserByEmail(input.email);
+        if (!user) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Email ou mot de passe incorrect.",
+          });
+        }
+
+        const valid = await bcrypt.compare(input.password, user.passwordHash);
+        if (!valid) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Email ou mot de passe incorrect.",
+          });
+        }
+
+        await updateUserLastSignedIn(user.id);
+        await issueSession(user.id, ctx.req, ctx.res);
+        return { success: true, user: { id: user.id, name: user.name, email: user.email, role: user.role } };
+      }),
+
+    logout: publicProcedure.mutation(async ({ ctx }) => {
+      const sessionId = ctx.req.cookies?.[COOKIE_NAME];
+      if (sessionId) {
+        await deleteSession(sessionId);
+      }
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
@@ -192,7 +282,6 @@ export const appRouter = router({
         const announcement = await getAnnouncementById(input.announcementId, ctx.user.id);
         if (!announcement) throw new TRPCError({ code: "NOT_FOUND", message: "Annonce introuvable" });
 
-        // Créer la soumission
         await createSubmission({
           userId: ctx.user.id,
           announcementId: input.announcementId,
@@ -201,12 +290,10 @@ export const appRouter = router({
           startedAt: new Date(),
         });
 
-        // Récupérer l'ID de la soumission créée
         const userSubs = await getSubmissionsByUser(ctx.user.id);
         const newSub = userSubs[0];
         if (!newSub) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
-        // Créer les logs par site
         const logIds: Record<string, number> = {};
         for (const site of input.targetSites) {
           await createSubmissionLog({
@@ -219,7 +306,6 @@ export const appRouter = router({
           if (siteLog) logIds[site] = siteLog.id;
         }
 
-        // Lancer l'automatisation en arrière-plan
         runSubmission(newSub.id, announcement, input.targetSites, logIds)
           .then(async () => {
             const logs = await getLogsBySubmission(newSub.id);
@@ -260,7 +346,6 @@ export const appRouter = router({
         const sub = await getSubmissionById(input.id);
         if (!sub || sub.userId !== ctx.user.id) throw new TRPCError({ code: "NOT_FOUND" });
         const siteLogs = await getLogsBySubmission(sub.id);
-        // Build results map: { [site]: { status, message, url } }
         const results: Record<string, { status: string; message?: string; url?: string }> = {};
         for (const log of siteLogs) {
           results[log.site] = {
@@ -269,7 +354,6 @@ export const appRouter = router({
             url: log.externalUrl ?? undefined,
           };
         }
-        // Flatten all logs
         const allLogs = siteLogs.flatMap((l) => (l.logs as string[] | null) ?? []);
         return { ...sub, results, logs: allLogs };
       }),
@@ -299,26 +383,22 @@ export const appRouter = router({
     config: router({
       list: adminProcedure.query(async () => {
         const configs = await getAllApiConfigs();
-        // Masquer les valeurs secrètes
         return configs.map((c) => ({
           ...c,
-          value: c.isSecret && c.value ? "••••••••" : c.value,
+          value: c.isSecret ? (c.value ? "***" : null) : c.value,
         }));
       }),
 
-      listRaw: adminProcedure.query(() => getAllApiConfigs()),
-
-      upsert: adminProcedure
+      set: adminProcedure
         .input(
           z.object({
             key: z.string().min(1),
             value: z.string(),
             description: z.string().optional(),
-            isSecret: z.boolean().optional(),
           })
         )
         .mutation(async ({ input }) => {
-          await upsertApiConfig(input.key, input.value, input.description, input.isSecret ?? true);
+          await upsertApiConfig(input.key, input.value, input.description);
           return { success: true };
         }),
 
