@@ -12,7 +12,7 @@ export async function getQueue(): Promise<PgBoss | null> {
       ssl: needsSsl ? { rejectUnauthorized: false } as any : false
     });
     
-    _boss.on('error', error => console.error('[PgBoss Error]', error));
+    _boss.on('error', (error: any) => console.error('[PgBoss Error]', error));
     
     await _boss.start();
     console.log('[PgBoss] Queue system started');

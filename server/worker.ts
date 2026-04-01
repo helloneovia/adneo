@@ -9,7 +9,7 @@ export async function startWorker() {
 
   // Listen to 'submission' jobs
   // Concurrency: 2 to avoid memory overload with Chromium
-  await boss.work('submission', { teamSize: 2, teamConcurrency: 2 }, async (job) => {
+  await boss.work('submission', { teamSize: 2, teamConcurrency: 2 }, async (job: any) => {
     const { submissionId, targetSites, logIds, announcementId, userId } = job.data as any;
     
     console.log(`[Worker] Started submission #${submissionId}`);
