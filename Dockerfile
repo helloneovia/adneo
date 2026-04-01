@@ -20,7 +20,7 @@ COPY . .
 RUN pnpm run build
 
 # ---- Production stage ----
-FROM mcr.microsoft.com/playwright:v1.44.0-jammy AS runner
+FROM node:20-bullseye-slim AS runner
 
 WORKDIR /app
 
@@ -33,6 +33,9 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 COPY patches/ ./patches/
 RUN pnpm install --frozen-lockfile --prod
+
+# Install Playwright dependencies directly from the installed package
+RUN npx playwright install --with-deps chromium
 
 # Copy built artifacts from builder
 COPY --from=builder /app/dist ./dist
