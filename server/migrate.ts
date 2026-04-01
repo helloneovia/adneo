@@ -124,7 +124,8 @@ export async function runMigrations() {
     return;
   }
 
-  const sql = postgres(url, { ssl: { rejectUnauthorized: false }, max: 1 });
+  const needsSsl = url.includes('sslmode=require') || url.includes('ssl=true') || url.includes('neon.tech') || url.includes('supabase');
+  const sql = postgres(url, { ...(needsSsl ? { ssl: { rejectUnauthorized: false } } : { ssl: false }), max: 1 });
   try {
     console.log("[Migration] Running database migrations...");
     await sql.unsafe(MIGRATION_SQL);

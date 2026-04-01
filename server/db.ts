@@ -18,7 +18,10 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      const client = postgres(process.env.DATABASE_URL, { ssl: { rejectUnauthorized: false } });
+      // Detect if SSL is needed: external URLs (with SSL params or non-local hosts) use SSL, internal Docker networks don't
+      const dbUrl = process.env.DATABASE_URL;
+      const needsSsl = dbUrl.includes('sslmode=require') || dbUrl.includes('ssl=true') || dbUrl.includes('neon.tech') || dbUrl.includes('supabase');
+      const client = postgres(dbUrl, needsSsl ? { ssl: { rejectUnauthorized: false } } : { ssl: false });
       _db = drizzle(client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
