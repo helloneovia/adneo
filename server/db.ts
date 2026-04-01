@@ -1,5 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import {
   InsertSession,
   InsertUser,
@@ -17,7 +18,8 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const client = postgres(process.env.DATABASE_URL, { ssl: { rejectUnauthorized: false } });
+      _db = drizzle(client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -31,8 +33,7 @@ export async function getDb() {
 export async function createUser(data: InsertUser) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.insert(users).values(data);
-  const result = await db.select().from(users).where(eq(users.email, data.email)).limit(1);
+  const result = await db.insert(users).values(data).returning();
   return result[0];
 }
 
@@ -293,7 +294,7 @@ export async function upsertApiConfig(key: string, value: string, description?: 
   await db
     .insert(apiConfig)
     .values({ key, value, description })
-    .onDuplicateKeyUpdate({ set: { value, ...(description ? { description } : {}) } });
+    .onConflictDoUpdate({ target: apiConfig.key, set: { value, ...(description ? { description } : {}) } });
 }
 
 export async function deleteApiConfig(key: string) {
