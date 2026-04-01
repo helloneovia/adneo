@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/lib/trpc";
+import { useMemo } from "react";
 import {
   Zap,
   Globe,
@@ -58,7 +58,9 @@ const SITES = [
 ];
 
 export default function Home() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  // Compute login URL once, safely — getLoginUrl() returns "/" if env vars are missing
+  const loginUrl = useMemo(() => getLoginUrl(), []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -80,12 +82,12 @@ export default function Home() {
               </Link>
             ) : (
               <>
-                <a href={getLoginUrl()}>
+                <a href={loginUrl}>
                   <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                     Connexion
                   </Button>
                 </a>
-                <a href={getLoginUrl()}>
+                <a href={loginUrl}>
                   <Button size="sm" className="brand-gradient text-white border-0 hover:opacity-90">
                     Inscription gratuite
                   </Button>
@@ -123,7 +125,7 @@ export default function Home() {
             Capmonster résout les CAPTCHAs, 5sim gère les SMS. Vous n'avez plus rien à faire.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a href={getLoginUrl()}>
+            <a href={loginUrl}>
               <Button
                 size="lg"
                 className="brand-gradient text-white border-0 hover:opacity-90 px-8 py-6 text-base font-semibold shadow-lg shadow-primary/25"
@@ -231,7 +233,7 @@ export default function Home() {
               Rejoignez ADNEO gratuitement. Configurez vos clés API Capmonster et 5sim, et déposez
               votre première annonce en moins de 5 minutes.
             </p>
-            <a href={getLoginUrl()}>
+            <a href={loginUrl}>
               <Button
                 size="lg"
                 className="brand-gradient text-white border-0 hover:opacity-90 px-10 py-6 text-base font-semibold shadow-lg shadow-primary/25"
