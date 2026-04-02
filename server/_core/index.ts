@@ -30,19 +30,6 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
-  // Run DB migrations and worker, but catch errors to prevent the server from not starting
-  try {
-    await runMigrations();
-  } catch (err) {
-    console.error("Failed to run migrations:", err);
-  }
-
-  try {
-    await startWorker();
-  } catch (err) {
-    console.error("Failed to start worker:", err);
-  }
-
   const app = express();
   const server = createServer(app);
 
@@ -80,6 +67,12 @@ async function startServer() {
 
   server.listen(port, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${port}/`);
+    
+    // Initialize services that require DB access in the background
+    // so they do not block the HTTP server from binding the port promptly.
+    runMigrations()
+      .then(() => startWorker())
+      .catch((err) => console.error("[Startup Background Error]", err));
   });
 }
 
