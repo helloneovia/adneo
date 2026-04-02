@@ -30,9 +30,18 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
-  // Run DB migrations before starting the server
-  await runMigrations();
-  await startWorker();
+  // Run DB migrations and worker, but catch errors to prevent the server from not starting
+  try {
+    await runMigrations();
+  } catch (err) {
+    console.error("Failed to run migrations:", err);
+  }
+
+  try {
+    await startWorker();
+  } catch (err) {
+    console.error("Failed to start worker:", err);
+  }
 
   const app = express();
   const server = createServer(app);
