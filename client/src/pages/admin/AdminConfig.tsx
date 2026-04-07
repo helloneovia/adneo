@@ -54,6 +54,15 @@ const PRESET_CONFIGS = [
     color: "text-purple-400 bg-purple-500/10",
     link: null,
   },
+  {
+    key: "HERO_VIDEO_URL",
+    label: "URL Vidéo Hero (Accueil)",
+    description: "Lien vers la vidéo de la page d'accueil",
+    isSecret: false,
+    icon: <Eye className="w-4 h-4" />,
+    color: "text-indigo-400 bg-indigo-500/10",
+    link: null,
+  },
 ];
 
 export default function AdminConfig() {

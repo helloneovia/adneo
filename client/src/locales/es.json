@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "platform": "Plataforma",
+    "features": "Características",
+    "projects": "Proyectos",
+    "community": "Comunidad",
+    "contact": "Contacto",
+    "signup": "Registrarse",
+    "login": "Iniciar sesión"
+  },
+  "hero": {
+    "badge_new": "Nuevo",
+    "discover_possible": "Descubre lo que es posible",
+    "title": "Transforma los datos rápidamente",
+    "subtitle": "Sube tu información y obtén análisis potentes de inmediato. Trabaja de manera más inteligente y alcanza tus metas sin esfuerzo.",
+    "credits_used": "{{used}}/{{total}} créditos",
+    "upgrade": "Mejorar",
+    "powered_by": "Desarrollado por GPT-4o",
+    "placeholder": "Haz una pregunta...",
+    "btn_attach": "Adjuntar",
+    "btn_voice": "Voz",
+    "btn_prompts": "Prompts"
+  }
+}

@@ -44,12 +44,31 @@ function Router() {
   );
 }
 
+import { useEffect } from "react";
+import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
+
+function RouteTracker() {
+  const [location] = useLocation();
+  const logMutation = trpc.tracking.logView.useMutation();
+
+  useEffect(() => {
+    logMutation.mutate({
+      path: location,
+      action: "PAGE_VIEW",
+    });
+  }, [location]);
+
+  return null;
+}
+
 function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
+          <RouteTracker />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

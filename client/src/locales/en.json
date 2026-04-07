@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "platform": "Platform",
+    "features": "Features",
+    "projects": "Projects",
+    "community": "Community",
+    "contact": "Contact",
+    "signup": "Sign Up",
+    "login": "Log In"
+  },
+  "hero": {
+    "badge_new": "New",
+    "discover_possible": "Discover what's possible",
+    "title": "Transform Data Quickly",
+    "subtitle": "Upload your information and get powerful insights right away. Work smarter and achieve goals effortlessly.",
+    "credits_used": "{{used}}/{{total}} credits",
+    "upgrade": "Upgrade",
+    "powered_by": "Powered by GPT-4o",
+    "placeholder": "Type question...",
+    "btn_attach": "Attach",
+    "btn_voice": "Voice",
+    "btn_prompts": "Prompts"
+  }
+}

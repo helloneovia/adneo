@@ -10,6 +10,7 @@ import {
   submissionLogs,
   submissions,
   templates,
+  userTrackingLogs,
   users,
 } from "../drizzle/schema";
 
@@ -330,4 +331,24 @@ export async function getGlobalStats() {
     totalSubmissions: Number(subCount?.count ?? 0),
     totalAnnouncements: Number(annCount?.count ?? 0),
   };
+}
+
+// ─── Tracking Utilisateur ─────────────────────────────────────────────────────
+
+export async function createTrackingLog(
+  data: Omit<typeof userTrackingLogs.$inferInsert, "id" | "createdAt">
+) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(userTrackingLogs).values(data);
+}
+
+export async function getTrackingLogs(limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(userTrackingLogs)
+    .orderBy(desc(userTrackingLogs.createdAt))
+    .limit(limit);
 }

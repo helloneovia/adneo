@@ -24,6 +24,8 @@ import {
   getSubmissionsByUser,
   getTemplateById,
   getTemplatesByUser,
+  getTrackingLogs,
+  createTrackingLog,
   getUserByEmail,
   updateAnnouncement,
   updateSubmissionStatus,
@@ -412,6 +414,31 @@ export const appRouter = router({
           await deleteApiConfig(input.key);
           return { success: true };
         }),
+    }),
+  }),
+
+  // ─── Tracking ──────────────────────────────────────────────────────────────
+  tracking: router({
+    logView: publicProcedure
+      .input(
+        z.object({
+          path: z.string(),
+          action: z.string(),
+          metadata: z.record(z.string(), z.any()).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        await createTrackingLog({
+          userId: ctx.user?.id ?? null,
+          path: input.path,
+          action: input.action,
+          metadata: input.metadata ?? null,
+        });
+        return { success: true };
+      }),
+    
+    getLogs: adminProcedure.query(async () => {
+      return getTrackingLogs();
     }),
   }),
 });

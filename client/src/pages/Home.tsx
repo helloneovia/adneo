@@ -14,6 +14,11 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 
+import { useTranslation } from "react-i18next";
+import { VideoBackground } from "@/components/home/VideoBackground";
+import { HeroNav } from "@/components/home/HeroNav";
+import { HeroContent } from "@/components/home/HeroContent";
+
 const FEATURES = [
   {
     icon: <Globe className="w-6 h-6" />,
@@ -57,102 +62,19 @@ const SITES = [
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* ─── Navbar ──────────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 inset-x-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
-        <div className="container flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg brand-gradient flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-foreground">ADNEO</span>
-          </div>
-          <div className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <Link href="/dashboard">
-                <Button size="sm" className="brand-gradient text-white border-0 hover:opacity-90">
-                  Tableau de bord <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                    Connexion
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button size="sm" className="brand-gradient text-white border-0 hover:opacity-90">
-                    Inscription gratuite
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <div className="relative w-full h-[600px] overflow-hidden flex flex-col">
+        <VideoBackground url="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260329_050842_be71947f-f16e-4a14-810c-06e83d23ddb5.mp4" />
+        <HeroNav />
+        <div className="flex-1 flex flex-col justify-center mt-[60px]">
+          <HeroContent />
         </div>
-      </nav>
-
-      {/* ─── Hero ────────────────────────────────────────────────────────── */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="container text-center max-w-4xl mx-auto">
-          <Badge
-            variant="outline"
-            className="mb-6 border-primary/40 text-primary bg-primary/10 px-4 py-1.5 text-sm font-medium"
-          >
-            <Zap className="w-3.5 h-3.5 mr-1.5" />
-            Automatisation de petites annonces
-          </Badge>
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-            Déposez vos annonces{" "}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage:
-                  "linear-gradient(135deg, oklch(0.62 0.22 270), oklch(0.65 0.18 280))",
-              }}
-            >
-              partout en un clic
-            </span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            ADNEO automatise le dépôt de vos annonces sur les 5 plus grands sites français.
-            Capmonster résout les CAPTCHAs, 5sim gère les SMS. Vous n'avez plus rien à faire.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/register">
-              <Button
-                size="lg"
-                className="brand-gradient text-white border-0 hover:opacity-90 px-8 py-6 text-base font-semibold shadow-lg shadow-primary/25"
-              >
-                Commencer gratuitement <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
-            <p className="text-sm text-muted-foreground">
-              <CheckCircle2 className="w-4 h-4 inline mr-1 text-green-400" />
-              Inscription gratuite · Aucune carte requise
-            </p>
-          </div>
-        </div>
-
-        {/* Sites badges */}
-        <div className="container max-w-3xl mx-auto mt-16">
-          <p className="text-center text-sm text-muted-foreground mb-4 uppercase tracking-wider font-medium">
-            Sites supportés
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {SITES.map((site) => (
-              <span
-                key={site.name}
-                className={`px-4 py-2 rounded-full border text-sm font-medium ${site.color}`}
-              >
-                {site.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
+      </div>
+      
+      <div className="flex-1 relative z-20 bg-background pt-8 pb-20">
 
       {/* ─── Features ────────────────────────────────────────────────────── */}
       <section className="py-20 border-t border-border/50">
@@ -255,6 +177,7 @@ export default function Home() {
           </p>
         </div>
       </footer>
+      </div>
     </div>
   );
 }

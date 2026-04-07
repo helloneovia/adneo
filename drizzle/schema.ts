@@ -129,3 +129,16 @@ export const apiConfig = pgTable("api_config", {
 
 export type ApiConfig = typeof apiConfig.$inferSelect;
 export type InsertApiConfig = typeof apiConfig.$inferInsert;
+
+// ─── Logs de tracking utilisateur avancé ──────────────────────────────────────
+export const userTrackingLogs = pgTable("user_tracking_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId"), // Optionnel si l'utilisateur n'est pas connecté
+  path: varchar("path", { length: 255 }).notNull(),
+  action: varchar("action", { length: 128 }).notNull(),
+  metadata: json("metadata").$type<Record<string, any>>(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UserTrackingLog = typeof userTrackingLogs.$inferSelect;
+export type InsertUserTrackingLog = typeof userTrackingLogs.$inferInsert;

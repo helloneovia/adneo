@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
-import { CheckCircle2, XCircle, Clock, Loader2, RefreshCw, Globe, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Loader2, RefreshCw, Globe, ChevronDown, ChevronUp, Activity } from "lucide-react";
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const SITE_LABELS: Record<string, string> = {
   paruvendu: "ParuVendu.fr",
@@ -34,26 +35,35 @@ export default function AdminLogs() {
     { submissionId: expandedId! },
     { enabled: expandedId !== null }
   );
+  
+  const { data: trackingLogs, isLoading: isLoadingTracking, refetch: refetchTracking } = trpc.tracking.getLogs.useQuery();
 
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Logs des soumissions</h1>
-            <p className="text-muted-foreground mt-1">Toutes les soumissions de tous les utilisateurs.</p>
+            <h1 className="text-2xl font-bold text-foreground">Logs Système</h1>
+            <p className="text-muted-foreground mt-1">Surveiller les soumissions et le tracking utilisateur avancé.</p>
           </div>
-          <Button variant="outline" size="sm" className="border-border" onClick={() => refetch()}>
+          <Button variant="outline" size="sm" className="border-border" onClick={() => { refetch(); refetchTracking(); }}>
             <RefreshCw className="w-4 h-4 mr-1.5" /> Actualiser
           </Button>
         </div>
 
+        <Tabs defaultValue="submissions" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="submissions">Soumissions (API)</TabsTrigger>
+            <TabsTrigger value="tracking">Tracking Utilisateurs</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="submissions">
         {isLoading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-xl bg-muted/30 animate-pulse" />)}
           </div>
         ) : submissions?.length === 0 ? (
-          <Card className="bg-card border-border">
+          <Card className="bg-card glass-card border-border">
             <CardContent className="py-12 text-center text-muted-foreground">
               Aucune soumission enregistrée.
             </CardContent>
@@ -147,6 +157,41 @@ export default function AdminLogs() {
             ))}
           </div>
         )}
+          </TabsContent>
+
+          <TabsContent value="tracking">
+            <Card className="bg-card glass-card border-border">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-primary" />
+                  Activité Utilisateurs
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingTracking ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-xl bg-muted/30 animate-pulse" />)}
+                  </div>
+                ) : trackingLogs?.length === 0 ? (
+                  <div className="py-12 text-center text-muted-foreground">Aucun hit enregistré.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {trackingLogs?.map((log: any) => (
+                      <div key={log.id} className="flex justify-between items-center bg-muted/20 rounded-lg p-3 border border-border/50">
+                        <div className="flex gap-4 items-center">
+                          <span className="text-zinc-400 font-mono text-xs">{new Date(log.createdAt).toLocaleString()}</span>
+                          <span className="text-sm font-semibold">{log.action}</span>
+                          <span className="text-sm border border-border px-2 py-0.5 rounded-full">{log.path}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">User ID: {log.userId || "GUEST"}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
