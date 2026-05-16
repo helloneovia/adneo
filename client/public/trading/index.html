@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stratégie Price Action Max - Adneo</title>
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #00d2ff;
+            --accent-glow: rgba(0, 210, 255, 0.2);
+            --green: #10b981;
+            --red: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+        
+        header::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px; height: 300px;
+            background: var(--accent);
+            filter: blur(150px);
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-img {
+            width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.02);
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        td strong {
+            color: var(--text-main);
+        }
+
+        .params-list {
+            list-style: none;
+        }
+
+        .params-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .params-list li:last-child { border-bottom: none; }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            margin-top: 2rem;
+        }
+
+        .alert h4 { color: #ef4444; margin-bottom: 0.5rem; font-size: 1.25rem; }
+
+        @media (min-width: 768px) {
+            .params-list li {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Price Action Max</h1>
+            <p class="subtitle">La stratégie quantitative pure. Sans indicateurs retardés. Scalée sur plus de 500 actifs institutionnels.</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">+1235%</div>
+                <div class="stat-label">Rendement Net (9 Ans)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--red);">-20.4%</div>
+                <div class="stat-label">Max Drawdown</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--text-main);">506</div>
+                <div class="stat-label">Actifs Simultanés</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">⚙️ Les Règles de l'Algorithme</h2>
+            <div class="card">
+                <ul class="params-list">
+                    <li>
+                        <div>
+                            <strong>Condition d'Entrée (Breakout)</strong>
+                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">Le prix clôture au-dessus du plus haut des 10 derniers jours.</p>
+                        </div>
+                        <span class="badge">10-Day High</span>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>Confirmation de Volume</strong>
+                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">Le volume du jour de cassure doit être supérieur à la moyenne mobile (10j) des volumes. Preuve d'intérêt institutionnel.</p>
+                        </div>
+                        <span class="badge">Vol > 1.0x</span>
+                    </li>
+                    <li>
+                        <div>
+                            <strong>Stop Suiveur (Sortie)</strong>
+                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">La position est coupée dès que le prix clôture sous la Moyenne Mobile Simple à 20 jours (SMA 20).</p>
+                        </div>
+                        <span class="badge">Close < SMA 20</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🌍 Univers & Frais Réels</h2>
+            <div class="card">
+                <p><strong>Univers d'investissement :</strong> L'algorithme scanne et trade quotidiennement <strong>506 actifs</strong> incluant l'intégralité du S&P 500, le Bitcoin, l'Ethereum, l'Or et le Pétrole brut. Le capital est divisé de manière équipondérée.</p>
+                <br>
+                <p><strong>Frais déduits :</strong> Le backtest déduit <strong>0.15% par transaction</strong> (soit 0.30% aller-retour) pour simuler le Spread et les commissions éventuelles d'un broker Spot. Aucun levier n'est utilisé.</p>
+                <br>
+                <p><strong>Fréquence :</strong> En scannant 500 actions, la stratégie génère entre 1 et 3 trades par jour en moyenne (plusieurs milliers sur 9 ans), lissant parfaitement le risque.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📈 Courbe de Croissance du Capital</h2>
+            <div class="card" style="padding: 1rem;">
+                <img src="portfolio_500_equity_opt.png" alt="Equity Curve" class="chart-img">
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📊 Rendements Mensuels Nets</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">Performances mois par mois depuis 2015, incluant tous les frais de transaction.</p>
+            <div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Year</th>
+<th>Jan</th>
+<th>Feb</th>
+<th>Mar</th>
+<th>Apr</th>
+<th>May</th>
+<th>Jun</th>
+<th>Jul</th>
+<th>Aug</th>
+<th>Sep</th>
+<th>Oct</th>
+<th>Nov</th>
+<th>Dec</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>2015<strong></td>
+<td><span style='color: var(--red);'>-0.9%</span></td>
+<td><span style='color: var(--red);'>-1.5%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>1.6%</span></td>
+<td><span style='color: var(--red);'>-0.6%</span></td>
+<td><span style='color: var(--red);'>-1.9%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>15.5%</span></td>
+<td><span style='color: var(--red);'>-1.8%</span></td>
+<td><span style='color: var(--red);'>-6.3%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>1.3%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>6.6%</span></td>
+<td><span style='color: var(--red);'>-11.7%</span></td>
+<td><strong><span style='color: var(--red);'>-1.4%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2016<strong></td>
+<td><span style='color: var(--red);'>-1.4%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>7.6%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>4.5%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.5%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>12.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>18.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>1.2%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.5%</span></td>
+<td><span style='color: var(--red);'>-1.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>4.7%</span></td>
+<td><span style='color: var(--red);'>-3.1%</span></td>
+<td><span style='color: var(--red);'>-1.7%</span></td>
+<td><strong><span style='color: var(--green); font-weight: 600;'>48.5%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2017<strong></td>
+<td><span style='color: var(--green); font-weight: 600;'>4.9%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>3.8%</span></td>
+<td><span style='color: var(--red);'>-1.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>3.5%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>11.9%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>5.4%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.5%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>21.7%</span></td>
+<td><span style='color: var(--red);'>-4.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>16.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>12.6%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>6.4%</span></td>
+<td><strong><span style='color: var(--green); font-weight: 600;'>112.5%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2018<strong></td>
+<td><span style='color: var(--green); font-weight: 600;'>10.2%</span></td>
+<td><span style='color: var(--red);'>-2.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>1.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>12.2%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.4%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.7%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>2.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.9%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>2.9%</span></td>
+<td><span style='color: var(--red);'>-1.7%</span></td>
+<td><span style='color: var(--red);'>-0.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>2.7%</span></td>
+<td><strong><span style='color: var(--green); font-weight: 600;'>32.0%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2019<strong></td>
+<td><span style='color: var(--green); font-weight: 600;'>7.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>9.4%</span></td>
+<td><span style='color: var(--red);'>-2.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>7.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>27.9%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>1.0%</span></td>
+<td><span style='color: var(--red);'>-2.1%</span></td>
+<td><span style='color: var(--red);'>-0.4%</span></td>
+<td><span style='color: var(--red);'>-0.3%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>5.3%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>2.7%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.5%</span></td>
+<td><strong><span style='color: var(--green); font-weight: 600;'>68.7%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2020<strong></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.1%</span></td>
+<td><span style='color: var(--red);'>-1.0%</span></td>
+<td><span style='color: var(--red);'>-5.2%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>5.3%</span></td>
+<td><span style='color: var(--red);'>-8.5%</span></td>
+<td><span style='color: var(--red);'>-0.1%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>9.3%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>6.3%</span></td>
+<td><span style='color: var(--red);'>-4.5%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>5.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>2.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>11.1%</span></td>
+<td><strong><span style='color: var(--green); font-weight: 600;'>20.3%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2021<strong></td>
+<td><span style='color: var(--green); font-weight: 600;'>23.6%</span></td>
+<td><span style='color: var(--red);'>-2.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>4.2%</span></td>
+<td><span style='color: var(--red);'>-3.5%</span></td>
+<td><span style='color: var(--red);'>-0.5%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.3%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>5.3%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.5%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.6%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>2.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>1.4%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.5%</span></td>
+<td><strong><span style='color: var(--green); font-weight: 600;'>34.5%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2022<strong></td>
+<td><span style='color: var(--red);'>-1.0%</span></td>
+<td><span style='color: var(--red);'>-0.1%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>4.5%</span></td>
+<td><span style='color: var(--red);'>-0.8%</span></td>
+<td><span style='color: var(--red);'>-0.7%</span></td>
+<td><span style='color: var(--red);'>-3.0%</span></td>
+<td><span style='color: var(--red);'>-2.4%</span></td>
+<td><span style='color: var(--red);'>-2.2%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.2%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>3.2%</span></td>
+<td><span style='color: var(--red);'>-0.2%</span></td>
+<td><span style='color: var(--red);'>-3.8%</span></td>
+<td><strong><span style='color: var(--red);'>-6.5%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2023<strong></td>
+<td><span style='color: var(--green); font-weight: 600;'>13.8%</span></td>
+<td><span style='color: var(--red);'>-3.2%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>2.7%</span></td>
+<td><span style='color: var(--red);'>-2.5%</span></td>
+<td><span style='color: var(--red);'>-3.6%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>2.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>0.3%</span></td>
+<td><span style='color: var(--red);'>-1.5%</span></td>
+<td><span style='color: var(--red);'>-2.4%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>4.2%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>7.0%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>5.5%</span></td>
+<td><strong><span style='color: var(--green); font-weight: 600;'>23.1%</span><strong></td>
+</tr>
+<tr>
+<td><strong>2024<strong></td>
+<td><span style='color: var(--red);'>-1.8%</span></td>
+<td><span style='color: var(--green); font-weight: 600;'>10.1%</span></td>
+<td><span style='color: var(--red);'>-2.3%</span></td>
+<td><span style='color: var(--red);'>-2.1%</span></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td><strong><span style='color: var(--green); font-weight: 600;'>3.4%</span><strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📉 Stress Test : Max Drawdown Intra-Mois</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">Mesure de la plus forte baisse subie à l'intérieur de chaque mois. Remarquez la stabilité exceptionnelle conférée par la diversification.</p>
+            <div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Year</th>
+<th>Jan</th>
+<th>Feb</th>
+<th>Mar</th>
+<th>Apr</th>
+<th>May</th>
+<th>Jun</th>
+<th>Jul</th>
+<th>Aug</th>
+<th>Sep</th>
+<th>Oct</th>
+<th>Nov</th>
+<th>Dec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>2015<strong></td>
+<td><span style='color: var(--red);'>-1.2%</span></td>
+<td><span style='color: var(--red);'>-11.5%</span></td>
+<td><span style='color: var(--red);'>-2.1%</span></td>
+<td><span style='color: var(--red);'>-1.1%</span></td>
+<td><span style='color: var(--red);'>-2.3%</span></td>
+<td><span style='color: var(--red);'>-1.6%</span></td>
+<td><span style='color: var(--red);'>-2.8%</span></td>
+<td><span style='color: var(--red);'>-2.2%</span></td>
+<td><span style='color: var(--red);'>-6.5%</span></td>
+<td><span style='color: var(--red);'>-4.6%</span></td>
+<td><span style='color: var(--red);'>-5.1%</span></td>
+<td><span style='color: var(--red);'>-17.2%</span></td>
+</tr>
+<tr>
+<td><strong>2016<strong></td>
+<td><span style='color: var(--red);'>-1.9%</span></td>
+<td><span style='color: var(--red);'>-1.6%</span></td>
+<td><span style='color: var(--red);'>-1.3%</span></td>
+<td><span style='color: var(--red);'>-2.5%</span></td>
+<td><span style='color: var(--red);'>-1.2%</span></td>
+<td><span style='color: var(--red);'>-1.4%</span></td>
+<td><span style='color: var(--red);'>-0.3%</span></td>
+<td><span style='color: var(--red);'>-0.6%</span></td>
+<td><span style='color: var(--red);'>-4.3%</span></td>
+<td><span style='color: var(--red);'>-1.9%</span></td>
+<td><span style='color: var(--red);'>-5.1%</span></td>
+<td><span style='color: var(--red);'>-3.2%</span></td>
+</tr>
+<tr>
+<td><strong>2017<strong></td>
+<td><span style='color: var(--red);'>-0.7%</span></td>
+<td><span style='color: var(--red);'>-2.5%</span></td>
+<td><span style='color: var(--red);'>-2.0%</span></td>
+<td><span style='color: var(--red);'>-2.0%</span></td>
+<td><span style='color: var(--red);'>-8.6%</span></td>
+<td><span style='color: var(--red);'>-1.0%</span></td>
+<td><span style='color: var(--red);'>-6.0%</span></td>
+<td><span style='color: var(--red);'>-2.7%</span></td>
+<td><span style='color: var(--red);'>-10.2%</span></td>
+<td><span style='color: var(--red);'>-2.8%</span></td>
+<td><span style='color: var(--red);'>-2.6%</span></td>
+<td><span style='color: var(--red);'>-5.0%</span></td>
+</tr>
+<tr>
+<td><strong>2018<strong></td>
+<td><span style='color: var(--red);'>-3.4%</span></td>
+<td><span style='color: var(--red);'>-4.0%</span></td>
+<td><span style='color: var(--red);'>-2.2%</span></td>
+<td><span style='color: var(--red);'>-1.2%</span></td>
+<td><span style='color: var(--red);'>-2.5%</span></td>
+<td><span style='color: var(--red);'>-0.9%</span></td>
+<td><span style='color: var(--red);'>-1.0%</span></td>
+<td><span style='color: var(--red);'>-0.7%</span></td>
+<td><span style='color: var(--red);'>-1.5%</span></td>
+<td><span style='color: var(--red);'>-1.9%</span></td>
+<td><span style='color: var(--red);'>-1.7%</span></td>
+<td><span style='color: var(--red);'>-5.7%</span></td>
+</tr>
+<tr>
+<td><strong>2019<strong></td>
+<td><span style='color: var(--red);'>-1.2%</span></td>
+<td><span style='color: var(--red);'>-11.5%</span></td>
+<td><span style='color: var(--red);'>-2.4%</span></td>
+<td><span style='color: var(--red);'>-1.4%</span></td>
+<td><span style='color: var(--red);'>-5.9%</span></td>
+<td><span style='color: var(--red);'>-9.9%</span></td>
+<td><span style='color: var(--red);'>-4.2%</span></td>
+<td><span style='color: var(--red);'>-2.5%</span></td>
+<td><span style='color: var(--red);'>-2.9%</span></td>
+<td><span style='color: var(--red);'>-0.8%</span></td>
+<td><span style='color: var(--red);'>-0.9%</span></td>
+<td><span style='color: var(--red);'>-0.8%</span></td>
+</tr>
+<tr>
+<td><strong>2020<strong></td>
+<td><span style='color: var(--red);'>-5.1%</span></td>
+<td><span style='color: var(--red);'>-7.4%</span></td>
+<td><span style='color: var(--red);'>-5.3%</span></td>
+<td><span style='color: var(--red);'>-4.5%</span></td>
+<td><span style='color: var(--red);'>-12.8%</span></td>
+<td><span style='color: var(--red);'>-9.6%</span></td>
+<td><span style='color: var(--red);'>-0.7%</span></td>
+<td><span style='color: var(--red);'>-4.9%</span></td>
+<td><span style='color: var(--red);'>-5.9%</span></td>
+<td><span style='color: var(--red);'>-3.2%</span></td>
+<td><span style='color: var(--red);'>-6.4%</span></td>
+<td><span style='color: var(--red);'>-2.8%</span></td>
+</tr>
+<tr>
+<td><strong>2021<strong></td>
+<td><span style='color: var(--red);'>-3.1%</span></td>
+<td><span style='color: var(--red);'>-4.2%</span></td>
+<td><span style='color: var(--red);'>-6.4%</span></td>
+<td><span style='color: var(--red);'>-8.9%</span></td>
+<td><span style='color: var(--red);'>-7.8%</span></td>
+<td><span style='color: var(--red);'>-1.0%</span></td>
+<td><span style='color: var(--red);'>-0.8%</span></td>
+<td><span style='color: var(--red);'>-5.5%</span></td>
+<td><span style='color: var(--red);'>-1.9%</span></td>
+<td><span style='color: var(--red);'>-2.9%</span></td>
+<td><span style='color: var(--red);'>-1.8%</span></td>
+<td><span style='color: var(--red);'>-0.8%</span></td>
+</tr>
+<tr>
+<td><strong>2022<strong></td>
+<td><span style='color: var(--red);'>-1.8%</span></td>
+<td><span style='color: var(--red);'>-3.1%</span></td>
+<td><span style='color: var(--red);'>-2.6%</span></td>
+<td><span style='color: var(--red);'>-2.5%</span></td>
+<td><span style='color: var(--red);'>-1.3%</span></td>
+<td><span style='color: var(--red);'>-3.4%</span></td>
+<td><span style='color: var(--red);'>-5.4%</span></td>
+<td><span style='color: var(--red);'>-4.8%</span></td>
+<td><span style='color: var(--red);'>-2.1%</span></td>
+<td><span style='color: var(--red);'>-1.7%</span></td>
+<td><span style='color: var(--red);'>-4.0%</span></td>
+<td><span style='color: var(--red);'>-3.9%</span></td>
+</tr>
+<tr>
+<td><strong>2023<strong></td>
+<td><span style='color: var(--red);'>-2.0%</span></td>
+<td><span style='color: var(--red);'>-5.1%</span></td>
+<td><span style='color: var(--red);'>-2.4%</span></td>
+<td><span style='color: var(--red);'>-2.7%</span></td>
+<td><span style='color: var(--red);'>-3.6%</span></td>
+<td><span style='color: var(--red);'>-2.3%</span></td>
+<td><span style='color: var(--red);'>-1.6%</span></td>
+<td><span style='color: var(--red);'>-1.7%</span></td>
+<td><span style='color: var(--red);'>-2.7%</span></td>
+<td><span style='color: var(--red);'>-1.4%</span></td>
+<td><span style='color: var(--red);'>-1.4%</span></td>
+<td><span style='color: var(--red);'>-2.8%</span></td>
+</tr>
+<tr>
+<td><strong>2024<strong></td>
+<td><span style='color: var(--red);'>-2.8%</span></td>
+<td><span style='color: var(--red);'>-0.9%</span></td>
+<td><span style='color: var(--red);'>-6.6%</span></td>
+<td><span style='color: var(--red);'>-1.8%</span></td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+        </div>
+
+        <div class="alert">
+            <h4>La Leçon du "Cash Drag"</h4>
+            <p>Vouloir faire "travailler l'argent tout le temps" (allocation dynamique à 100%) a été testé et détruit la stratégie (le rendement tombe à 74%). Pourquoi ? Parce que pendant un Krach (Bear Market), l'algorithme ne trouve presque aucun signal. Avoir 90% de son portefeuille en Cash à ce moment-là n'est pas une perte de temps : <strong>c'est la protection absolue.</strong> Le Cash est une position.</p>
+        </div>
+    </div>
+</body>
+</html>
